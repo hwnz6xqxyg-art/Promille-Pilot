@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Promille-Pilot",
+    "slug": "promille-pilot",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "promillepilot",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.promillepilot.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.promillepilot.app",
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": ["expo-router", "expo-localization"],
+    "extra": {
+      "comment": "AdMob-App-IDs (iOS/Android) und weitere Keys kommen in Phase 4 hierher bzw. in app.config.ts."
+    }
+  }
+}
