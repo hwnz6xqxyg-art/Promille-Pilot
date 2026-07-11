@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail" data-bg-color="#E9E7E2">
+<svg viewBox="0 0 120 84" xmlns="http://www.w3.org/2000/svg">
+<rect x="44" y="10" width="32" height="64" rx="8" fill="#1a1a1a"></rect>
+<rect x="47" y="13" width="26" height="58" rx="5.5" fill="#F2F2F7"></rect>
+<circle cx="60" cy="36" r="11" fill="none" stroke="rgba(120,120,128,0.25)" stroke-width="4"></circle>
+<path d="M60 25a11 11 0 0 1 9.5 16.5" fill="none" stroke="#34C759" stroke-width="4" stroke-linecap="round"></path>
+<rect x="52" y="53" width="16" height="4" rx="2" fill="#007AFF"></rect>
+</svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<script src="engine.js"></script>
+<style>
+body{margin:0;background:#E9E7E2;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#007AFF;text-decoration:none}
+a:hover{color:#0063CC}
+@keyframes pp-pop-a{0%{transform:scale(1)}35%{transform:scale(1.09)}70%{transform:scale(.985)}100%{transform:scale(1)}}
+@keyframes pp-pop-b{0%{transform:scale(1)}35%{transform:scale(1.09)}70%{transform:scale(.985)}100%{transform:scale(1)}}
+@keyframes pp-row-in{0%{opacity:0;transform:translateY(14px) scale(.97)}60%{opacity:1;transform:translateY(-2px) scale(1.005)}100%{opacity:1;transform:translateY(0) scale(1)}}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t1" style="padding:40px 44px 32px;scroll-margin-top:16px;">
+  <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 8px;">
+    <a href="#t1" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;">1</a>
+    <span style="font:600 14px/1.2 -apple-system,sans-serif;color:#1a1a1a;">Promille‑Pilot — drei Apple‑Interpretationen</span>
+  </div>
+  <div style="max-width:860px;font:400 12.5px/1.55 -apple-system,sans-serif;color:rgba(0,0,0,.55);margin:0 0 24px;">
+    Alle drei Phones laufen mit der echten BAC‑Engine und teilen sich Profil &amp; Getränkeliste — füg links etwas hinzu und vergleich die Anzeigen rechts.
+    Physik: gefederte Zahlen‑Roll‑ups, „haptischer" Puls beim Über‑/Unterschreiten des Limits, Rubber‑Banding beim Zeit‑Scrubbing (Zeitleiste ziehen bzw. in <a href="#1c" style="font:600 10.5px ui-monospace,monospace;padding:2px 6px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;">1c</a> die Kurve mit dem Finger scrubben), Spring‑Bottom‑Sheets und Segmented Controls. Onboarding zuerst — einmal bestätigen gilt für alle drei.
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;">
+
+    <!-- ══════════════ 1a — Ring & Kacheln ══════════════ -->
+    <div id="1a" style="display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px;">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11.5px -apple-system,sans-serif;color:rgba(0,0,0,.55);">
+        <a href="#1a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;">1a</a>
+        Aktivitätsring · Ein‑Tipp‑Kacheln · Zeitleiste
+      </div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+        <div style="height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;">
+          <div style="flex:1;overflow-y:auto;overflow-x:hidden;">
+            <div style="padding:68px 20px 0;display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:28px;font-weight:800;letter-spacing:-0.6px;color:#000;">Promille</div>
+              <div onClick="{{ openProfA }}" style="width:36px;height:36px;border-radius:50%;background:rgba(120,120,128,0.16);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1);" style-active="transform:scale(.88);">
+                <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="6" r="3.4" fill="rgba(60,60,67,0.65)"></circle><path d="M2.2 16.5c.9-3.4 3.7-5.1 6.8-5.1s5.9 1.7 6.8 5.1z" fill="rgba(60,60,67,0.65)"></path></svg>
+              </div>
+            </div>
+            <div style="padding:2px 20px 0;font-size:12px;color:rgba(60,60,67,0.6);">Nur Schätzung — keine Fahrentscheidung.</div>
+
+            <div style="display:flex;flex-direction:column;align-items:center;padding:20px 0 4px;">
+              <div style="position:relative;width:212px;height:212px;">
+                <svg width="212" height="212" viewBox="0 0 212 212" style="transform:rotate(-90deg);">
+                  <circle cx="106" cy="106" r="88" stroke="rgba(120,120,128,0.14)" stroke-width="17" fill="none"></circle>
+                  <circle cx="106" cy="106" r="88" stroke="{{ statusColor }}" stroke-width="17" fill="none" stroke-linecap="round" stroke-dasharray="552.9" stroke-dashoffset="{{ ringOffset }}"></circle>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div style="font-size:48px;font-weight:800;letter-spacing:-1.5px;font-variant-numeric:tabular-nums;color:{{ statusColor }};animation:{{ pulseAnim }};">{{ bacText }}</div>
+                  <div style="font-size:13px;font-weight:700;letter-spacing:2px;color:rgba(60,60,67,0.6);margin-top:-2px;">PROMILLE</div>
+                </div>
+              </div>
+              <div style="margin-top:10px;border-radius:999px;padding:5px 14px;font-size:13px;font-weight:700;color:{{ statusColor }};background:{{ statusBg }};">{{ statusLabel }}</div>
+              <div style="margin-top:6px;font-size:12px;color:rgba(60,60,67,0.6);">Dein Limit: {{ limitText }}</div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 16px 6px;">
+              <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="8">
+                <div onClick="{{ t.onAdd }}" style="background:#fff;border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.05);transition:transform .45s cubic-bezier(.34,1.56,.64,1);" style-active="transform:scale(.92);transition:transform .08s ease;">
+                  <div style="font-size:22px;line-height:1;">{{ t.e }}</div>
+                  <div style="min-width:0;">
+                    <div style="font-size:14px;font-weight:600;color:#000;">{{ t.name }}</div>
+                    <div style="font-size:12px;color:rgba(60,60,67,0.6);">{{ t.detail }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="padding:8px 16px 0;">
+              <div onPointerDown="{{ pillDown }}" onPointerMove="{{ pillMove }}" onPointerUp="{{ pillUp }}" style="background:#fff;border-radius:16px;padding:11px 14px 12px;touch-action:none;cursor:grab;user-select:none;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;">
+                  <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(60,60,67,0.6);">ZEIT</span>
+                  <span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:#000;">{{ pillLabel }}</span>
+                  <span onClick="{{ resetShift }}" style="font-size:12px;font-weight:600;color:#007AFF;cursor:pointer;opacity:{{ shiftOp }};transition:opacity .3s;">Zurück</span>
+                </div>
+                <div style="position:relative;margin-top:9px;height:18px;overflow:hidden;border-radius:3px;">
+                  <div style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(60,60,67,0.3) 0px,rgba(60,60,67,0.3) 1.5px,transparent 1.5px,transparent 11px);background-position:{{ tickPos }};"></div>
+                  <div style="position:absolute;top:0;bottom:0;left:50%;width:2.5px;margin-left:-1.25px;border-radius:2px;background:#FF9500;"></div>
+                </div>
+                <div style="margin-top:6px;font-size:11px;color:rgba(60,60,67,0.45);text-align:center;">Ziehen, um in die Zukunft zu blicken</div>
+              </div>
+            </div>
+
+            <div style="margin:14px 16px 0;background:#fff;border-radius:20px;padding:14px 16px 6px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(60,60,67,0.6);margin-bottom:2px;">FAHRGRENZEN</div>
+              <sc-for list="{{ fcRows }}" as="r" hint-placeholder-count="3">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-top:{{ r.border }};">
+                  <span style="font-size:15px;font-weight:600;color:#000;">{{ r.label }}</span>
+                  <span style="display:flex;gap:6px;align-items:baseline;">
+                    <b style="font-size:15px;font-variant-numeric:tabular-nums;color:{{ r.mainColor }};">{{ r.main }}</b>
+                    <span style="font-size:12px;color:rgba(60,60,67,0.6);">{{ r.sub }}</span>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="margin:14px 16px 0;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px 4px;">
+                <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(60,60,67,0.6);">GETRÄNKE</span>
+                <sc-if value="{{ hasDrinks }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearAll }}" style="font-size:12px;font-weight:600;color:#FF3B30;cursor:pointer;">Alle löschen</span></sc-if>
+              </div>
+              <sc-if value="{{ noDrinks }}" hint-placeholder-val="{{ true }}"><div style="padding:6px 16px 16px;font-size:14px;color:rgba(60,60,67,0.55);">Noch keine Getränke — tipp oben auf eine Kachel.</div></sc-if>
+              <div style="padding:0 0 6px;">
+                <sc-for list="{{ drinkRows }}" as="d" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:11px;padding:9px 16px;border-top:{{ d.border }};animation:pp-row-in .45s cubic-bezier(.3,1.3,.5,1);">
+                    <div style="font-size:20px;">{{ d.e }}</div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:15px;font-weight:600;color:#000;">{{ d.label }}</div>
+                      <div style="font-size:12px;color:rgba(60,60,67,0.6);">{{ d.detail }}</div>
+                    </div>
+                    <div style="font-size:13px;color:rgba(60,60,67,0.6);font-variant-numeric:tabular-nums;">{{ d.time }}</div>
+                    <div onClick="{{ d.onRemove }}" style="width:26px;height:26px;border-radius:50%;background:rgba(120,120,128,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1);" style-active="transform:scale(.85);">
+                      <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="rgba(60,60,67,0.6)" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding:16px 28px 60px;font-size:11px;line-height:1.5;color:rgba(60,60,67,0.45);text-align:center;">Widmark + Seidl · Abbau {{ betaText }} (konservativ) · Kein Medizinprodukt, keine Entscheidungsgrundlage. Sicher ist nur 0,0 ‰.</div>
+          </div>
+
+          <!-- Profil / Onboarding overlay A -->
+          <div style="position:absolute;inset:0;z-index:30;background:#F2F2F7;transform:translateY({{ profAY }});transition:transform .55s cubic-bezier(.32,1.25,.45,1);overflow-y:auto;">
+            <div style="padding:80px 20px 44px;display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+                <div>
+                  <div style="font-size:30px;font-weight:800;letter-spacing:-0.7px;color:#000;">Dein Profil</div>
+                  <div style="font-size:14px;color:rgba(60,60,67,0.6);margin-top:2px;">Für eine realistische Schätzung.</div>
+                </div>
+                <sc-if value="{{ onboarded }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ closeProf }}" style="width:32px;height:32px;border-radius:50%;background:rgba(120,120,128,0.16);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-active="transform:scale(.88);">
+                    <svg width="11" height="11" viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="rgba(60,60,67,0.6)" stroke-width="1.9" stroke-linecap="round"></path></svg>
+                  </div>
+                </sc-if>
+              </div>
+
+              <div style="background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:16px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                    <span style="font-size:15px;font-weight:600;color:#000;">Gewicht</span>
+                    <span style="font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;color:#007AFF;">{{ weightLabel }}</span>
+                  </div>
+                  <div onPointerDown="{{ weightCtl.down }}" onPointerMove="{{ weightCtl.move }}" onPointerUp="{{ weightCtl.up }}" style="position:relative;height:28px;touch-action:none;cursor:pointer;">
+                    <div style="position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:rgba(120,120,128,0.2);"></div>
+                    <div style="position:absolute;left:0;top:11px;height:6px;border-radius:3px;background:#007AFF;width:{{ weightPct }};"></div>
+                    <div style="position:absolute;top:0;left:{{ weightPct }};width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.3);"></div>
+                  </div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                    <span style="font-size:15px;font-weight:600;color:#000;">Größe</span>
+                    <span style="font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;color:#007AFF;">{{ heightLabel }}</span>
+                  </div>
+                  <div onPointerDown="{{ heightCtl.down }}" onPointerMove="{{ heightCtl.move }}" onPointerUp="{{ heightCtl.up }}" style="position:relative;height:28px;touch-action:none;cursor:pointer;">
+                    <div style="position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:rgba(120,120,128,0.2);"></div>
+                    <div style="position:absolute;left:0;top:11px;height:6px;border-radius:3px;background:#007AFF;width:{{ heightPct }};"></div>
+                    <div style="position:absolute;top:0;left:{{ heightPct }};width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.3);"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:14px;">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:rgba(60,60,67,0.6);margin-bottom:7px;">Geschlecht (biologisch)</div>
+                  <div style="position:relative;background:rgba(120,120,128,0.16);border-radius:10px;height:36px;display:flex;padding:2px;">
+                    <div style="position:absolute;top:2px;bottom:2px;width:calc(50% - 2px);left:{{ sexLeft }};background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.12);transition:left .4s cubic-bezier(.3,1.4,.5,1);"></div>
+                    <sc-for list="{{ sexOpts }}" as="o" hint-placeholder-count="2">
+                      <div onClick="{{ o.on }}" style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#000;cursor:pointer;">{{ o.label }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="opacity:{{ limitDim }};transition:opacity .3s;">
+                  <div style="font-size:13px;font-weight:600;color:rgba(60,60,67,0.6);margin-bottom:7px;">Dein Grenzwert</div>
+                  <div style="position:relative;background:rgba(120,120,128,0.16);border-radius:10px;height:36px;display:flex;padding:2px;">
+                    <div style="position:absolute;top:2px;bottom:2px;width:calc(33.333% - 2px);left:{{ limitLeft }};background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.12);transition:left .4s cubic-bezier(.3,1.4,.5,1);"></div>
+                    <sc-for list="{{ limitOpts }}" as="o" hint-placeholder-count="3">
+                      <div onClick="{{ o.on }}" style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#000;cursor:pointer;">{{ o.label }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+                  <div>
+                    <div style="font-size:15px;font-weight:600;color:#000;">Fahranfänger / unter 21</div>
+                    <div style="font-size:12px;color:rgba(60,60,67,0.6);">Erzwingt 0,0 ‰</div>
+                  </div>
+                  <div onClick="{{ toggleNovice }}" style="width:51px;height:31px;border-radius:16px;background:{{ noviceBg }};position:relative;cursor:pointer;transition:background .3s;">
+                    <div style="position:absolute;top:2px;left:{{ noviceLeft }};width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.25);transition:left .35s cubic-bezier(.3,1.5,.5,1);"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:rgba(255,149,0,0.1);border-radius:16px;padding:12px 14px;font-size:12.5px;line-height:1.5;color:#8a5200;">Diese App schätzt nur. Sie ist kein Medizinprodukt und niemals eine Grundlage für die Entscheidung, ob du fährst.</div>
+
+              <div onClick="{{ finishOnboarding }}" style="background:#007AFF;color:#fff;border-radius:14px;height:50px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1);" style-active="transform:scale(.96);">{{ ctaLabel }}</div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <!-- ══════════════ 1b — Prognose zuerst ══════════════ -->
+    <div id="1b" style="display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px;">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11.5px -apple-system,sans-serif;color:rgba(0,0,0,.55);">
+        <a href="#1b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;">1b</a>
+        „Wann darf ich fahren?" · Bottom‑Sheet zum Hinzufügen
+      </div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+        <div style="height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;">
+          <div style="flex:1;overflow-y:auto;overflow-x:hidden;">
+            <div style="padding:68px 20px 0;display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:28px;font-weight:800;letter-spacing:-0.6px;color:#000;">Heute Abend</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <div style="border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:{{ statusColor }};background:{{ statusBg }};">{{ bacText }} ‰</div>
+                <div onClick="{{ openProfB }}" style="width:36px;height:36px;border-radius:50%;background:rgba(120,120,128,0.16);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-active="transform:scale(.88);">
+                  <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="6" r="3.4" fill="rgba(60,60,67,0.65)"></circle><path d="M2.2 16.5c.9-3.4 3.7-5.1 6.8-5.1s5.9 1.7 6.8 5.1z" fill="rgba(60,60,67,0.65)"></path></svg>
+                </div>
+              </div>
+            </div>
+            <div style="padding:2px 20px 0;font-size:12px;color:rgba(60,60,67,0.6);">Nur Schätzung — keine Fahrentscheidung.</div>
+
+            <div style="margin:16px 16px 0;background:#fff;border-radius:24px;padding:20px 20px 8px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;color:rgba(60,60,67,0.6);">UNTER DEINEM LIMIT AB</div>
+              <div style="font-size:56px;font-weight:800;letter-spacing:-2px;font-variant-numeric:tabular-nums;color:{{ heroColor }};animation:{{ pulseAnim }};line-height:1.15;">{{ heroTime }}</div>
+              <div style="font-size:14px;color:rgba(60,60,67,0.6);margin-top:-2px;">{{ heroSub }}</div>
+              <div style="margin-top:14px;">
+                <sc-for list="{{ fcRows }}" as="r" hint-placeholder-count="3">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-top:0.5px solid rgba(60,60,67,0.12);">
+                    <span style="font-size:15px;font-weight:600;color:#000;">{{ r.label }}</span>
+                    <span style="display:flex;gap:6px;align-items:baseline;">
+                      <b style="font-size:15px;font-variant-numeric:tabular-nums;color:{{ r.mainColor }};">{{ r.main }}</b>
+                      <span style="font-size:12px;color:rgba(60,60,67,0.6);">{{ r.sub }}</span>
+                    </span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding:14px 16px 0;">
+              <div onPointerDown="{{ pillDown }}" onPointerMove="{{ pillMove }}" onPointerUp="{{ pillUp }}" style="background:#fff;border-radius:16px;padding:11px 14px 12px;touch-action:none;cursor:grab;user-select:none;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;">
+                  <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(60,60,67,0.6);">ZEIT</span>
+                  <span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:#000;">{{ pillLabel }}</span>
+                  <span onClick="{{ resetShift }}" style="font-size:12px;font-weight:600;color:#007AFF;cursor:pointer;opacity:{{ shiftOp }};transition:opacity .3s;">Zurück</span>
+                </div>
+                <div style="position:relative;margin-top:9px;height:18px;overflow:hidden;border-radius:3px;">
+                  <div style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(60,60,67,0.3) 0px,rgba(60,60,67,0.3) 1.5px,transparent 1.5px,transparent 11px);background-position:{{ tickPos }};"></div>
+                  <div style="position:absolute;top:0;bottom:0;left:50%;width:2.5px;margin-left:-1.25px;border-radius:2px;background:#FF9500;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin:14px 16px 0;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px 4px;">
+                <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(60,60,67,0.6);">GETRÄNKE</span>
+                <sc-if value="{{ hasDrinks }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearAll }}" style="font-size:12px;font-weight:600;color:#FF3B30;cursor:pointer;">Alle löschen</span></sc-if>
+              </div>
+              <sc-if value="{{ noDrinks }}" hint-placeholder-val="{{ true }}"><div style="padding:6px 16px 16px;font-size:14px;color:rgba(60,60,67,0.55);">Noch keine Getränke — unten rechts hinzufügen.</div></sc-if>
+              <div style="padding:0 0 6px;">
+                <sc-for list="{{ drinkRows }}" as="d" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:11px;padding:9px 16px;border-top:{{ d.border }};animation:pp-row-in .45s cubic-bezier(.3,1.3,.5,1);">
+                    <div style="font-size:20px;">{{ d.e }}</div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:15px;font-weight:600;color:#000;">{{ d.label }}</div>
+                      <div style="font-size:12px;color:rgba(60,60,67,0.6);">{{ d.detail }}</div>
+                    </div>
+                    <div style="font-size:13px;color:rgba(60,60,67,0.6);font-variant-numeric:tabular-nums;">{{ d.time }}</div>
+                    <div onClick="{{ d.onRemove }}" style="width:26px;height:26px;border-radius:50%;background:rgba(120,120,128,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-active="transform:scale(.85);">
+                      <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="rgba(60,60,67,0.6)" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding:16px 28px 120px;font-size:11px;line-height:1.5;color:rgba(60,60,67,0.45);text-align:center;">Widmark + Seidl · Abbau {{ betaText }} · Kein Medizinprodukt. Sicher ist nur 0,0 ‰.</div>
+          </div>
+
+          <!-- FAB -->
+          <div onClick="{{ openAdd }}" style="position:absolute;right:20px;bottom:44px;width:58px;height:58px;border-radius:50%;background:#007AFF;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 24px rgba(0,122,255,0.4);z-index:20;transition:transform .4s cubic-bezier(.34,1.56,.64,1);" style-active="transform:scale(.88) rotate(90deg);">
+            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="2.6" stroke-linecap="round"></path></svg>
+          </div>
+
+          <!-- Backdrop + Sheet -->
+          <div onClick="{{ closeSheet }}" style="position:absolute;inset:0;z-index:24;background:rgba(0,0,0,0.35);opacity:{{ backdropOp }};pointer-events:{{ backdropPE }};transition:opacity .4s;"></div>
+          <div style="position:absolute;left:0;right:0;bottom:0;z-index:25;background:#F7F7FA;border-radius:28px 28px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.18);transform:translateY({{ sheetY }});transition:transform .55s cubic-bezier(.32,1.22,.42,1);padding:10px 16px 34px;">
+            <div style="width:38px;height:5px;border-radius:3px;background:rgba(60,60,67,0.25);margin:0 auto 12px;"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="font-size:19px;font-weight:800;letter-spacing:-0.3px;color:#000;">Getränk hinzufügen</div>
+              <div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:999px;padding:4px 6px;">
+                <div onClick="{{ agoMinus }}" style="width:26px;height:26px;border-radius:50%;background:rgba(120,120,128,0.14);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#007AFF;cursor:pointer;" style-active="transform:scale(.85);">−</div>
+                <div style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;min-width:56px;text-align:center;color:#000;">{{ agoLabel }}</div>
+                <div onClick="{{ agoPlus }}" style="width:26px;height:26px;border-radius:50%;background:rgba(120,120,128,0.14);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#007AFF;cursor:pointer;" style-active="transform:scale(.85);">+</div>
+              </div>
+            </div>
+            <div style="background:#fff;border-radius:18px;overflow:hidden;">
+              <sc-for list="{{ presetRows }}" as="p" hint-placeholder-count="8">
+                <div onClick="{{ p.onAdd }}" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:{{ p.border }};cursor:pointer;" style-active="background:rgba(120,120,128,0.1);">
+                  <div style="font-size:21px;">{{ p.e }}</div>
+                  <div style="flex:1;">
+                    <span style="font-size:15px;font-weight:600;color:#000;">{{ p.name }}</span>
+                    <span style="font-size:13px;color:rgba(60,60,67,0.6);"> · {{ p.detail }}</span>
+                  </div>
+                  <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="rgba(0,122,255,0.12)"></circle><path d="M10 6v8M6 10h8" stroke="#007AFF" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- Profil overlay B -->
+          <div style="position:absolute;inset:0;z-index:30;background:#F2F2F7;transform:translateY({{ profBY }});transition:transform .55s cubic-bezier(.32,1.25,.45,1);overflow-y:auto;">
+            <div style="padding:80px 20px 44px;display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+                <div>
+                  <div style="font-size:30px;font-weight:800;letter-spacing:-0.7px;color:#000;">Dein Profil</div>
+                  <div style="font-size:14px;color:rgba(60,60,67,0.6);margin-top:2px;">Für eine realistische Schätzung.</div>
+                </div>
+                <sc-if value="{{ onboarded }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ closeProf }}" style="width:32px;height:32px;border-radius:50%;background:rgba(120,120,128,0.16);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-active="transform:scale(.88);">
+                    <svg width="11" height="11" viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="rgba(60,60,67,0.6)" stroke-width="1.9" stroke-linecap="round"></path></svg>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:16px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                    <span style="font-size:15px;font-weight:600;color:#000;">Gewicht</span>
+                    <span style="font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;color:#007AFF;">{{ weightLabel }}</span>
+                  </div>
+                  <div onPointerDown="{{ weightCtl.down }}" onPointerMove="{{ weightCtl.move }}" onPointerUp="{{ weightCtl.up }}" style="position:relative;height:28px;touch-action:none;cursor:pointer;">
+                    <div style="position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:rgba(120,120,128,0.2);"></div>
+                    <div style="position:absolute;left:0;top:11px;height:6px;border-radius:3px;background:#007AFF;width:{{ weightPct }};"></div>
+                    <div style="position:absolute;top:0;left:{{ weightPct }};width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.3);"></div>
+                  </div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                    <span style="font-size:15px;font-weight:600;color:#000;">Größe</span>
+                    <span style="font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;color:#007AFF;">{{ heightLabel }}</span>
+                  </div>
+                  <div onPointerDown="{{ heightCtl.down }}" onPointerMove="{{ heightCtl.move }}" onPointerUp="{{ heightCtl.up }}" style="position:relative;height:28px;touch-action:none;cursor:pointer;">
+                    <div style="position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:rgba(120,120,128,0.2);"></div>
+                    <div style="position:absolute;left:0;top:11px;height:6px;border-radius:3px;background:#007AFF;width:{{ heightPct }};"></div>
+                    <div style="position:absolute;top:0;left:{{ heightPct }};width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.3);"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:14px;">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:rgba(60,60,67,0.6);margin-bottom:7px;">Geschlecht (biologisch)</div>
+                  <div style="position:relative;background:rgba(120,120,128,0.16);border-radius:10px;height:36px;display:flex;padding:2px;">
+                    <div style="position:absolute;top:2px;bottom:2px;width:calc(50% - 2px);left:{{ sexLeft }};background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.12);transition:left .4s cubic-bezier(.3,1.4,.5,1);"></div>
+                    <sc-for list="{{ sexOpts }}" as="o" hint-placeholder-count="2">
+                      <div onClick="{{ o.on }}" style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#000;cursor:pointer;">{{ o.label }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="opacity:{{ limitDim }};transition:opacity .3s;">
+                  <div style="font-size:13px;font-weight:600;color:rgba(60,60,67,0.6);margin-bottom:7px;">Dein Grenzwert</div>
+                  <div style="position:relative;background:rgba(120,120,128,0.16);border-radius:10px;height:36px;display:flex;padding:2px;">
+                    <div style="position:absolute;top:2px;bottom:2px;width:calc(33.333% - 2px);left:{{ limitLeft }};background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.12);transition:left .4s cubic-bezier(.3,1.4,.5,1);"></div>
+                    <sc-for list="{{ limitOpts }}" as="o" hint-placeholder-count="3">
+                      <div onClick="{{ o.on }}" style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#000;cursor:pointer;">{{ o.label }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+                  <div>
+                    <div style="font-size:15px;font-weight:600;color:#000;">Fahranfänger / unter 21</div>
+                    <div style="font-size:12px;color:rgba(60,60,67,0.6);">Erzwingt 0,0 ‰</div>
+                  </div>
+                  <div onClick="{{ toggleNovice }}" style="width:51px;height:31px;border-radius:16px;background:{{ noviceBg }};position:relative;cursor:pointer;transition:background .3s;">
+                    <div style="position:absolute;top:2px;left:{{ noviceLeft }};width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.25);transition:left .35s cubic-bezier(.3,1.5,.5,1);"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="background:rgba(255,149,0,0.1);border-radius:16px;padding:12px 14px;font-size:12.5px;line-height:1.5;color:#8a5200;">Diese App schätzt nur. Sie ist kein Medizinprodukt und niemals eine Grundlage für die Entscheidung, ob du fährst.</div>
+              <div onClick="{{ finishOnboarding }}" style="background:#007AFF;color:#fff;border-radius:14px;height:50px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1);" style-active="transform:scale(.96);">{{ ctaLabel }}</div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <!-- ══════════════ 1c — Kurve & Scrubbing ══════════════ -->
+    <div id="1c" style="display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px;">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11.5px -apple-system,sans-serif;color:rgba(0,0,0,.55);">
+        <a href="#1c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;">1c</a>
+        Verlaufskurve mit Finger‑Scrubbing · Slider‑Composer
+      </div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+        <div style="height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;">
+          <div style="flex:1;overflow-y:auto;overflow-x:hidden;">
+            <div style="padding:68px 20px 0;display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:28px;font-weight:800;letter-spacing:-0.6px;color:#000;">Verlauf</div>
+              <div onClick="{{ openProfC }}" style="width:36px;height:36px;border-radius:50%;background:rgba(120,120,128,0.16);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-active="transform:scale(.88);">
+                <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="6" r="3.4" fill="rgba(60,60,67,0.65)"></circle><path d="M2.2 16.5c.9-3.4 3.7-5.1 6.8-5.1s5.9 1.7 6.8 5.1z" fill="rgba(60,60,67,0.65)"></path></svg>
+              </div>
+            </div>
+            <div style="padding:2px 20px 0;font-size:12px;color:rgba(60,60,67,0.6);">Nur Schätzung — keine Fahrentscheidung.</div>
+
+            <div style="padding:16px 20px 0;display:flex;align-items:baseline;gap:10px;">
+              <div style="font-size:44px;font-weight:800;letter-spacing:-1.4px;font-variant-numeric:tabular-nums;color:{{ statusColor }};animation:{{ pulseAnim }};">{{ bacText }}</div>
+              <div style="font-size:16px;font-weight:700;color:rgba(60,60,67,0.5);">‰</div>
+              <div style="margin-left:auto;border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:700;color:{{ statusColor }};background:{{ statusBg }};">{{ statusLabel }}</div>
+            </div>
+
+            <div style="margin:12px 16px 0;background:#fff;border-radius:22px;padding:12px 0 4px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+              <sc-if value="{{ hasDrinks }}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <svg viewBox="0 0 370 232" style="width:100%;display:block;touch-action:none;cursor:ew-resize;" onPointerDown="{{ chartDown }}" onPointerMove="{{ chartMove }}" onPointerUp="{{ chartUp }}">
+                    <defs>
+                      <linearGradient id="ppgrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="rgba(0,122,255,0.28)"></stop>
+                        <stop offset="1" stop-color="rgba(0,122,255,0)"></stop>
+                      </linearGradient>
+                    </defs>
+                    <path d="{{ areaPath }}" fill="url(#ppgrad)"></path>
+                    <line x1="36" x2="356" y1="{{ limitY }}" y2="{{ limitY }}" stroke="#FF3B30" stroke-width="1.3" stroke-dasharray="5 4" opacity="0.75"></line>
+                    <text x="40" y="{{ limitLabelY }}" fill="#FF3B30" font-size="10" font-weight="700">Limit {{ limitText }}</text>
+                    <path d="{{ chartPath }}" fill="none" stroke="#007AFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <line x1="{{ nowX }}" x2="{{ nowX }}" y1="16" y2="196" stroke="rgba(60,60,67,0.35)" stroke-width="1" stroke-dasharray="2 3"></line>
+                    <circle cx="{{ nowX }}" cy="{{ nowY }}" r="7" fill="#fff" stroke="{{ statusColor }}" stroke-width="3.5"></circle>
+                    <text x="36" y="222" fill="rgba(60,60,67,0.55)" font-size="11">{{ tStartText }}</text>
+                    <text x="356" y="222" fill="rgba(60,60,67,0.55)" font-size="11" text-anchor="end">{{ tEndText }}</text>
+                  </svg>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:2px 0 8px;">
+                    <span style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:#000;">{{ pillLabel }}</span>
+                    <span onClick="{{ resetShift }}" style="font-size:12px;font-weight:600;color:#007AFF;cursor:pointer;opacity:{{ shiftOp }};transition:opacity .3s;">Zurück</span>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ noDrinks }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:38px 24px 42px;text-align:center;">
+                  <div style="font-size:15px;font-weight:600;color:#000;">Noch keine Kurve</div>
+                  <div style="font-size:13px;color:rgba(60,60,67,0.6);margin-top:3px;">Stell unten ein Getränk zusammen — die Prognose erscheint hier zum Scrubben.</div>
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="margin:14px 16px 0;background:#fff;border-radius:20px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:15px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(60,60,67,0.6);">GETRÄNK ZUSAMMENSTELLEN</span>
+                <span style="font-size:13px;font-weight:700;color:#007AFF;font-variant-numeric:tabular-nums;">{{ customSummary }}</span>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                  <span style="font-size:14px;font-weight:600;color:#000;">Menge</span>
+                  <span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:#007AFF;">{{ volLabel }}</span>
+                </div>
+                <div onPointerDown="{{ volCtl.down }}" onPointerMove="{{ volCtl.move }}" onPointerUp="{{ volCtl.up }}" style="position:relative;height:28px;touch-action:none;cursor:pointer;">
+                  <div style="position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:rgba(120,120,128,0.2);"></div>
+                  <div style="position:absolute;left:0;top:11px;height:6px;border-radius:3px;background:#007AFF;width:{{ volPct }};"></div>
+                  <div style="position:absolute;top:0;left:{{ volPct }};width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.3);"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                  <span style="font-size:14px;font-weight:600;color:#000;">Alkohol</span>
+                  <span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:#007AFF;">{{ abvLabel }}</span>
+                </div>
+                <div onPointerDown="{{ abvCtl.down }}" onPointerMove="{{ abvCtl.move }}" onPointerUp="{{ abvCtl.up }}" style="position:relative;height:28px;touch-action:none;cursor:pointer;">
+                  <div style="position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:rgba(120,120,128,0.2);"></div>
+                  <div style="position:absolute;left:0;top:11px;height:6px;border-radius:3px;background:#007AFF;width:{{ abvPct }};"></div>
+                  <div style="position:absolute;top:0;left:{{ abvPct }};width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.3);"></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;">
+                <sc-for list="{{ chipPresets }}" as="c" hint-placeholder-count="5">
+                  <div onClick="{{ c.onPick }}" style="flex:none;border-radius:999px;padding:7px 12px;background:rgba(120,120,128,0.12);font-size:13px;font-weight:600;color:#000;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1);" style-active="transform:scale(.92);">{{ c.chipLabel }}</div>
+                </sc-for>
+              </div>
+              <div onClick="{{ addCustom }}" style="background:#007AFF;color:#fff;border-radius:13px;height:46px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1);" style-active="transform:scale(.96);">Jetzt getrunken</div>
+            </div>
+
+            <div style="margin:14px 16px 0;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px 4px;">
+                <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(60,60,67,0.6);">GETRÄNKE</span>
+                <sc-if value="{{ hasDrinks }}" hint-placeholder-val="{{ false }}"><span onClick="{{ clearAll }}" style="font-size:12px;font-weight:600;color:#FF3B30;cursor:pointer;">Alle löschen</span></sc-if>
+              </div>
+              <sc-if value="{{ noDrinks }}" hint-placeholder-val="{{ true }}"><div style="padding:6px 16px 16px;font-size:14px;color:rgba(60,60,67,0.55);">Noch keine Getränke.</div></sc-if>
+              <div style="padding:0 0 6px;">
+                <sc-for list="{{ drinkRows }}" as="d" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:11px;padding:9px 16px;border-top:{{ d.border }};animation:pp-row-in .45s cubic-bezier(.3,1.3,.5,1);">
+                    <div style="font-size:20px;">{{ d.e }}</div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:15px;font-weight:600;color:#000;">{{ d.label }}</div>
+                      <div style="font-size:12px;color:rgba(60,60,67,0.6);">{{ d.detail }}</div>
+                    </div>
+                    <div style="font-size:13px;color:rgba(60,60,67,0.6);font-variant-numeric:tabular-nums;">{{ d.time }}</div>
+                    <div onClick="{{ d.onRemove }}" style="width:26px;height:26px;border-radius:50%;background:rgba(120,120,128,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-active="transform:scale(.85);">
+                      <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="rgba(60,60,67,0.6)" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding:16px 28px 60px;font-size:11px;line-height:1.5;color:rgba(60,60,67,0.45);text-align:center;">Widmark + Seidl · Abbau {{ betaText }} · Kein Medizinprodukt. Sicher ist nur 0,0 ‰.</div>
+          </div>
+
+          <!-- Profil overlay C -->
+          <div style="position:absolute;inset:0;z-index:30;background:#F2F2F7;transform:translateY({{ profCY }});transition:transform .55s cubic-bezier(.32,1.25,.45,1);overflow-y:auto;">
+            <div style="padding:80px 20px 44px;display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+                <div>
+                  <div style="font-size:30px;font-weight:800;letter-spacing:-0.7px;color:#000;">Dein Profil</div>
+                  <div style="font-size:14px;color:rgba(60,60,67,0.6);margin-top:2px;">Für eine realistische Schätzung.</div>
+                </div>
+                <sc-if value="{{ onboarded }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ closeProf }}" style="width:32px;height:32px;border-radius:50%;background:rgba(120,120,128,0.16);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-active="transform:scale(.88);">
+                    <svg width="11" height="11" viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="rgba(60,60,67,0.6)" stroke-width="1.9" stroke-linecap="round"></path></svg>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:16px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                    <span style="font-size:15px;font-weight:600;color:#000;">Gewicht</span>
+                    <span style="font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;color:#007AFF;">{{ weightLabel }}</span>
+                  </div>
+                  <div onPointerDown="{{ weightCtl.down }}" onPointerMove="{{ weightCtl.move }}" onPointerUp="{{ weightCtl.up }}" style="position:relative;height:28px;touch-action:none;cursor:pointer;">
+                    <div style="position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:rgba(120,120,128,0.2);"></div>
+                    <div style="position:absolute;left:0;top:11px;height:6px;border-radius:3px;background:#007AFF;width:{{ weightPct }};"></div>
+                    <div style="position:absolute;top:0;left:{{ weightPct }};width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.3);"></div>
+                  </div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                    <span style="font-size:15px;font-weight:600;color:#000;">Größe</span>
+                    <span style="font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;color:#007AFF;">{{ heightLabel }}</span>
+                  </div>
+                  <div onPointerDown="{{ heightCtl.down }}" onPointerMove="{{ heightCtl.move }}" onPointerUp="{{ heightCtl.up }}" style="position:relative;height:28px;touch-action:none;cursor:pointer;">
+                    <div style="position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:rgba(120,120,128,0.2);"></div>
+                    <div style="position:absolute;left:0;top:11px;height:6px;border-radius:3px;background:#007AFF;width:{{ heightPct }};"></div>
+                    <div style="position:absolute;top:0;left:{{ heightPct }};width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.3);"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:14px;">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:rgba(60,60,67,0.6);margin-bottom:7px;">Geschlecht (biologisch)</div>
+                  <div style="position:relative;background:rgba(120,120,128,0.16);border-radius:10px;height:36px;display:flex;padding:2px;">
+                    <div style="position:absolute;top:2px;bottom:2px;width:calc(50% - 2px);left:{{ sexLeft }};background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.12);transition:left .4s cubic-bezier(.3,1.4,.5,1);"></div>
+                    <sc-for list="{{ sexOpts }}" as="o" hint-placeholder-count="2">
+                      <div onClick="{{ o.on }}" style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#000;cursor:pointer;">{{ o.label }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="opacity:{{ limitDim }};transition:opacity .3s;">
+                  <div style="font-size:13px;font-weight:600;color:rgba(60,60,67,0.6);margin-bottom:7px;">Dein Grenzwert</div>
+                  <div style="position:relative;background:rgba(120,120,128,0.16);border-radius:10px;height:36px;display:flex;padding:2px;">
+                    <div style="position:absolute;top:2px;bottom:2px;width:calc(33.333% - 2px);left:{{ limitLeft }};background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.12);transition:left .4s cubic-bezier(.3,1.4,.5,1);"></div>
+                    <sc-for list="{{ limitOpts }}" as="o" hint-placeholder-count="3">
+                      <div onClick="{{ o.on }}" style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#000;cursor:pointer;">{{ o.label }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+                  <div>
+                    <div style="font-size:15px;font-weight:600;color:#000;">Fahranfänger / unter 21</div>
+                    <div style="font-size:12px;color:rgba(60,60,67,0.6);">Erzwingt 0,0 ‰</div>
+                  </div>
+                  <div onClick="{{ toggleNovice }}" style="width:51px;height:31px;border-radius:16px;background:{{ noviceBg }};position:relative;cursor:pointer;transition:background .3s;">
+                    <div style="position:absolute;top:2px;left:{{ noviceLeft }};width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.25);transition:left .35s cubic-bezier(.3,1.5,.5,1);"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="background:rgba(255,149,0,0.1);border-radius:16px;padding:12px 14px;font-size:12.5px;line-height:1.5;color:#8a5200;">Diese App schätzt nur. Sie ist kein Medizinprodukt und niemals eine Grundlage für die Entscheidung, ob du fährst.</div>
+              <div onClick="{{ finishOnboarding }}" style="background:#007AFF;color:#fff;border-radius:14px;height:50px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1);" style-active="transform:scale(.96);">{{ ctaLabel }}</div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+  </div>
+  <p style="margin:24px 0 0;font:12px/1.5 -apple-system,sans-serif;color:rgba(0,0,0,.5);">Als Nächstes: „mach aus <a href="#1a" style="font:600 10.5px ui-monospace,monospace;padding:2px 6px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;">1a</a> die finale Version" · „Dark Mode" · „Kombiniere Ring aus <a href="#1a" style="font:600 10.5px ui-monospace,monospace;padding:2px 6px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;">1a</a> mit dem Sheet aus <a href="#1b" style="font:600 10.5px ui-monospace,monospace;padding:2px 6px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;">1b</a>"</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;eliminationRate&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 0.1, &quot;min&quot;: 0.08, &quot;max&quot;: 0.2, &quot;step&quot;: 0.01, &quot;unit&quot;: &quot;‰/h&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Engine&quot;}, &quot;reduceMotion&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Motion&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.T0 = Date.now();
+    this.state = {
+      onboarded: false,
+      profile: { weightKg: 80, heightCm: 180, sex: 'male', limit: 0.5, novice: false },
+      drinks: [],
+      shift: 0,
+      disp: 0,
+      pulse: 0,
+      sheet: null,
+      agoMin: 0,
+      vol: 500,
+      abv: 5
+    };
+    this._v = 0;
+    this._raf = null;
+    this._slider = null;
+    this._scrub = null;
+    this._chartDrag = false;
+    this._chartGeom = null;
+    this._shiftAnim = null;
+    this._lastOver = null;
+    this._nf2 = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    this._nf1 = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 });
+    this.PRESETS = [
+      { e: '🍺', name: 'Bier', detail: '0,5 l · 5 %', vol: 500, abv: 5 },
+      { e: '🍺', name: 'Bier', detail: '0,3 l · 5 %', vol: 300, abv: 5 },
+      { e: '🌾', name: 'Weizen', detail: '0,5 l · 5,4 %', vol: 500, abv: 5.4 },
+      { e: '🍋', name: 'Radler', detail: '0,5 l · 2,5 %', vol: 500, abv: 2.5 },
+      { e: '🍷', name: 'Wein', detail: '0,2 l · 12 %', vol: 200, abv: 12 },
+      { e: '🥂', name: 'Sekt', detail: '0,1 l · 11 %', vol: 100, abv: 11 },
+      { e: '🍹', name: 'Longdrink', detail: '0,3 l · 10 %', vol: 300, abv: 10 },
+      { e: '🥃', name: 'Shot', detail: '2 cl · 40 %', vol: 20, abv: 40 }
+    ];
+  }
+
+  eng() { return window.PPEngine || null; }
+  beta() { return this.props.eliminationRate != null ? Number(this.props.eliminationRate) : 0.1; }
+  prof() {
+    const p = this.state.profile;
+    return {
+      weightKg: p.weightKg, heightCm: p.heightCm, sex: p.sex,
+      distributionMode: 'seidl', eliminationRate: this.beta(),
+      targetLimitPromille: p.novice ? 0 : p.limit, isNovice: p.novice
+    };
+  }
+  evalNow() { return this.T0 + this.state.shift * 60000; }
+  fmtP(v) { return this._nf2.format(Math.max(0, v || 0)); }
+  fmtClock(ms) { return new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); }
+  fmtDur(ms) {
+    const m = Math.round(Math.max(0, ms) / 60000), h = Math.floor(m / 60), mm = m % 60;
+    if (h <= 0) return mm + ' min';
+    if (mm === 0) return h + ' h';
+    return h + ' h ' + mm + ' min';
+  }
+
+  componentDidMount() {
+    let last = performance.now();
+    const loop = (ts) => {
+      const dt = Math.min(0.05, (ts - last) / 1000); last = ts;
+      let upd = null;
+      const E = this.eng();
+      const target = E ? E.currentBac(this.state.drinks, this.prof(), this.evalNow()) : 0;
+      let d = this.state.disp, v = this._v;
+      if (this.props.reduceMotion) {
+        if (d !== target) { d = target; upd = { disp: d }; }
+        this._v = 0;
+      } else {
+        const a = 130 * (target - d) - 21 * v;
+        v += a * dt; d += v * dt; this._v = v;
+        if (Math.abs(target - d) < 0.0004 && Math.abs(v) < 0.002) { d = target; this._v = 0; }
+        if (d !== this.state.disp) upd = { disp: d };
+      }
+      if (this._shiftAnim && !this._scrub && !this._chartDrag) {
+        const sa = this._shiftAnim;
+        sa.v += (95 * (sa.target - this.state.shift) - 19 * sa.v) * dt;
+        let ns = this.state.shift + sa.v * dt;
+        if (Math.abs(sa.target - ns) < 0.4 && Math.abs(sa.v) < 1.5) { ns = sa.target; this._shiftAnim = null; }
+        upd = Object.assign(upd || {}, { shift: ns });
+      }
+      if (E && this.state.drinks.length > 0) {
+        const limit = E.applicableLimit(this.prof());
+        const over = d > limit + 1e-6;
+        if (this._lastOver === null) this._lastOver = over;
+        else if (over !== this._lastOver) {
+          this._lastOver = over;
+          upd = Object.assign(upd || {}, { pulse: this.state.pulse + 1 });
+        }
+      } else { this._lastOver = null; }
+      if (upd) this.setState(upd);
+      this._raf = requestAnimationFrame(loop);
+    };
+    this._raf = requestAnimationFrame(loop);
+  }
+  componentWillUnmount() { if (this._raf) cancelAnimationFrame(this._raf); }
+
+  addDrink(p, agoMin) {
+    const d = {
+      id: 'd' + Date.now() + Math.random(),
+      timestamp: this.evalNow() - (agoMin || 0) * 60000,
+      volumeMl: p.vol, abvPercent: p.abv,
+      label: p.name, detail: p.detail, e: p.e || '🥤'
+    };
+    this.setState(s => ({ drinks: s.drinks.concat(d), sheet: null, agoMin: 0 }));
+  }
+
+  setProfile(k, v) { this.setState(s => ({ profile: Object.assign({}, s.profile, { [k]: v }) })); }
+
+  // generic slider
+  sliderDown(e, cfg) {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    this._slider = { cfg, rect: e.currentTarget.getBoundingClientRect() };
+    this.sliderAt(e.clientX);
+  }
+  sliderAt(x) {
+    const s = this._slider; if (!s) return;
+    let f = (x - s.rect.left) / Math.max(1, s.rect.width);
+    f = Math.max(0, Math.min(1, f));
+    let val = s.cfg.min + f * (s.cfg.max - s.cfg.min);
+    val = Math.round(val / s.cfg.step) * s.cfg.step;
+    val = Math.round(val * 100) / 100;
+    s.cfg.set(val);
+  }
+  makeSlider(min, max, step, get, set) {
+    const val = get();
+    const pct = ((Math.max(min, Math.min(max, val)) - min) / (max - min) * 100).toFixed(2) + '%';
+    return {
+      down: (e) => this.sliderDown(e, { min, max, step, set }),
+      move: (e) => { if (this._slider) this.sliderAt(e.clientX); },
+      up: () => { this._slider = null; },
+      pct
+    };
+  }
+
+  // time pill scrubbing (rubber-band)
+  rubber(raw) {
+    const MIN = 0, MAX = 720;
+    if (raw < MIN) return MIN + (raw - MIN) * 0.3;
+    if (raw > MAX) return MAX + (raw - MAX) * 0.3;
+    return raw;
+  }
+  pillDown(e) {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    this._scrub = { x: e.clientX, s: this.state.shift };
+    this._shiftAnim = null;
+  }
+  pillMove(e) {
+    if (!this._scrub) return;
+    const raw = this._scrub.s - (e.clientX - this._scrub.x) * 0.85;
+    this.setState({ shift: this.rubber(raw) });
+  }
+  pillUp() {
+    if (!this._scrub) return;
+    this._scrub = null;
+    const s = this.state.shift, c = Math.max(0, Math.min(720, s));
+    if (Math.abs(c - s) > 0.01) this._shiftAnim = { target: c, v: 0 };
+  }
+  springShiftTo(t) { this._shiftAnim = { target: t, v: 0 }; }
+
+  // chart scrubbing
+  chartDown(e) {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    this._chartDrag = { rect: e.currentTarget.getBoundingClientRect() };
+    this._shiftAnim = null;
+    this.chartAt(e.clientX);
+  }
+  chartAt(x) {
+    const g = this._chartGeom, cd = this._chartDrag;
+    if (!g || !cd) return;
+    const xsvg = (x - cd.rect.left) / Math.max(1, cd.rect.width) * 370;
+    const f = (xsvg - 36) / 320;
+    const t = g.tMin + f * g.tSpan;
+    let raw = (t - this.T0) / 60000;
+    const MIN = Math.min(0, (g.tMin - this.T0) / 60000), MAX = Math.min(720, (g.tMax - this.T0) / 60000);
+    if (raw < MIN) raw = MIN + (raw - MIN) * 0.3;
+    if (raw > MAX) raw = MAX + (raw - MAX) * 0.3;
+    this.setState({ shift: raw });
+  }
+  chartUp() {
+    if (!this._chartDrag) return;
+    this._chartDrag = false;
+    const g = this._chartGeom;
+    const MIN = g ? Math.min(0, (g.tMin - this.T0) / 60000) : 0;
+    const MAX = g ? Math.min(720, (g.tMax - this.T0) / 60000) : 720;
+    const s = this.state.shift, c = Math.max(MIN, Math.min(MAX, s));
+    if (Math.abs(c - s) > 0.01) this._shiftAnim = { target: c, v: 0 };
+  }
+
+  renderVals() {
+    const st = this.state, E = this.eng(), p = this.prof();
+    const evalNow = this.evalNow();
+    const limit = E ? E.applicableLimit(p) : (st.profile.novice ? 0 : st.profile.limit);
+    const disp = Math.max(0, st.disp);
+    const target = E ? E.currentBac(st.drinks, p, evalNow) : 0;
+    const over = disp > limit + 1e-6;
+    const drinking = disp > 0.004;
+    const statusColor = over ? '#FF3B30' : (drinking ? '#FF9500' : '#34C759');
+    const statusBg = over ? 'rgba(255,59,48,0.12)' : (drinking ? 'rgba(255,149,0,0.14)' : 'rgba(52,199,89,0.14)');
+    const statusLabel = over ? 'Über deinem Limit' : (drinking ? 'Unter deinem Limit' : 'Nüchtern');
+    const C = 552.9;
+    const ringOffset = (C * (1 - Math.min(1, disp / 1.2))).toFixed(1);
+    const pulseAnim = st.pulse === 0 ? 'none' : (st.pulse % 2 ? 'pp-pop-a' : 'pp-pop-b') + ' .45s cubic-bezier(.3,1.5,.5,1)';
+
+    // forecast
+    let fcRows = [], heroTime = '—', heroSub = 'Füg ein Getränk hinzu.', heroColor = 'rgba(60,60,67,0.35)';
+    if (E && st.drinks.length > 0) {
+      const rows = E.forecastThresholds(st.drinks, p, [0.5, 0.3, 0], evalNow);
+      fcRows = rows.map((r, i) => {
+        let main, sub = '', mainColor = '#000';
+        if (r.alreadyBelow) { main = '✓ jetzt'; mainColor = '#34C759'; }
+        else if (r.time != null) { main = this.fmtClock(r.time); sub = 'in ' + this.fmtDur(r.time - evalNow); }
+        else { main = '—'; }
+        return { label: 'unter ' + this.fmtP(r.limit) + ' ‰', main, sub, mainColor, border: i === 0 ? 'none' : '0.5px solid rgba(60,60,67,0.12)' };
+      });
+      const heroRow = rows.find(r => Math.abs(r.limit - limit) < 1e-6) || rows[rows.length - 1];
+      if (heroRow.alreadyBelow) { heroTime = 'Jetzt'; heroSub = 'unter deinem Limit von ' + this.fmtP(limit) + ' ‰ — Restalkohol bleibt ein Risiko.'; heroColor = '#34C759'; }
+      else if (heroRow.time != null) { heroTime = this.fmtClock(heroRow.time); heroSub = 'in ' + this.fmtDur(heroRow.time - evalNow) + ' · Limit ' + this.fmtP(limit) + ' ‰'; heroColor = '#000'; }
+    } else {
+      fcRows = [0.5, 0.3, 0].map((l, i) => ({ label: 'unter ' + this.fmtP(l) + ' ‰', main: '—', sub: '', mainColor: 'rgba(60,60,67,0.35)', border: i === 0 ? 'none' : '0.5px solid rgba(60,60,67,0.12)' }));
+    }
+
+    // chart
+    let chartPath = '', areaPath = '', limitY = 100, nowX = 36, nowY = 196, tStartText = '', tEndText = '';
+    this._chartGeom = null;
+    if (E && st.drinks.length > 0) {
+      const sim = E.simulate(st.drinks, p);
+      if (sim.points.length >= 2) {
+        const pts = sim.points;
+        const PADL = 36, PADR = 14, PADT = 16, PADB = 36, W = 370, H = 232;
+        const plotW = W - PADL - PADR, plotH = H - PADT - PADB;
+        const tMin = pts[0].t, tMax = pts[pts.length - 1].t, tSpan = (tMax - tMin) || 1;
+        const yMax = Math.max(limit, sim.peakBac, 0.1) * 1.18;
+        const xOf = (t) => PADL + ((t - tMin) / tSpan) * plotW;
+        const yOf = (v) => PADT + (1 - Math.max(0, v) / yMax) * plotH;
+        const step = Math.max(1, Math.floor(pts.length / 200));
+        const seg = [];
+        for (let i = 0; i < pts.length; i += step) seg.push(pts[i]);
+        if (seg[seg.length - 1] !== pts[pts.length - 1]) seg.push(pts[pts.length - 1]);
+        chartPath = seg.map((pt, i) => (i === 0 ? 'M' : 'L') + xOf(pt.t).toFixed(1) + ',' + yOf(pt.bac).toFixed(1)).join(' ');
+        areaPath = chartPath + ' L' + xOf(tMax).toFixed(1) + ',' + (PADT + plotH).toFixed(1) + ' L' + PADL + ',' + (PADT + plotH).toFixed(1) + ' Z';
+        limitY = yOf(limit).toFixed(1);
+        const clampedNow = Math.max(tMin, Math.min(tMax, evalNow));
+        nowX = xOf(clampedNow).toFixed(1);
+        nowY = yOf(E.bacAtTime ? E.bacAtTime(pts, clampedNow) : target).toFixed(1);
+        tStartText = this.fmtClock(tMin);
+        tEndText = this.fmtClock(tMax);
+        this._chartGeom = { tMin, tMax, tSpan };
+      }
+    }
+
+    // time pill
+    const sh = st.shift;
+    let pillLabel;
+    if (Math.abs(sh) < 0.5) pillLabel = 'Jetzt · ' + this.fmtClock(evalNow);
+    else if (sh > 0) pillLabel = '+' + this.fmtDur(sh * 60000) + ' · ' + this.fmtClock(evalNow);
+    else pillLabel = '−' + this.fmtDur(-sh * 60000) + ' · ' + this.fmtClock(evalNow);
+    const tickPos = (-(sh * (11 / 15))).toFixed(1) + 'px 0px';
+    const shiftActive = Math.abs(sh) > 0.5;
+
+    // lists
+    const tiles = this.PRESETS.map(pr => Object.assign({}, pr, { onAdd: () => this.addDrink(pr, 0) }));
+    const presetRows = this.PRESETS.map((pr, i) => Object.assign({}, pr, {
+      border: i === 0 ? 'none' : '0.5px solid rgba(60,60,67,0.12)',
+      onAdd: () => this.addDrink(pr, this.state.agoMin)
+    }));
+    const chipPresets = this.PRESETS.slice(0, 6).map(pr => ({
+      chipLabel: pr.e + ' ' + pr.name + ' ' + pr.detail.split(' · ')[0],
+      onPick: () => this.setState({ vol: pr.vol, abv: pr.abv })
+    }));
+    const sorted = st.drinks.slice().sort((a, b) => b.timestamp - a.timestamp);
+    const drinkRows = sorted.map((d, i) => ({
+      e: d.e, label: d.label,
+      detail: this._nf1.format(d.volumeMl) + ' ml · ' + this._nf1.format(d.abvPercent) + ' %',
+      time: this.fmtClock(d.timestamp),
+      border: i === 0 ? 'none' : '0.5px solid rgba(60,60,67,0.12)',
+      onRemove: () => this.setState(s => ({ drinks: s.drinks.filter(x => x.id !== d.id) }))
+    }));
+
+    // profile controls
+    const pf = st.profile;
+    const weightCtl = this.makeSlider(40, 160, 1, () => pf.weightKg, (v) => this.setProfile('weightKg', v));
+    const heightCtl = this.makeSlider(140, 210, 1, () => pf.heightCm, (v) => this.setProfile('heightCm', v));
+    const volCtl = this.makeSlider(20, 1000, 10, () => st.vol, (v) => this.setState({ vol: v }));
+    const abvCtl = this.makeSlider(0.5, 45, 0.5, () => st.abv, (v) => this.setState({ abv: v }));
+    const sexOpts = [
+      { label: 'Männlich', on: () => this.setProfile('sex', 'male') },
+      { label: 'Weiblich', on: () => this.setProfile('sex', 'female') }
+    ];
+    const limitVals = [0, 0.3, 0.5];
+    const limitOpts = limitVals.map(v => ({
+      label: this._nf1.format(v) + ' ‰',
+      on: () => { if (!pf.novice) this.setProfile('limit', v); }
+    }));
+    const limitIdx = limitVals.indexOf(pf.limit);
+    const sheetOpen = st.sheet === 'addb';
+
+    const profShown = (id) => (!st.onboarded || st.sheet === 'p' + id) ? '0%' : '104%';
+
+    return {
+      // shared status
+      bacText: this.fmtP(disp),
+      statusColor, statusBg, statusLabel,
+      limitText: this.fmtP(limit) + ' ‰',
+      betaText: this._nf1.format(this.beta()).replace('.', ',') + ' ‰/h',
+      ringOffset, pulseAnim,
+      hasDrinks: st.drinks.length > 0,
+      noDrinks: st.drinks.length === 0,
+      drinkRows, tiles, presetRows, chipPresets, fcRows,
+      clearAll: () => this.setState({ drinks: [] }),
+      // hero (1b)
+      heroTime, heroSub, heroColor,
+      // time pill
+      pillLabel, tickPos,
+      shiftOp: shiftActive ? '1' : '0',
+      pillDown: (e) => this.pillDown(e),
+      pillMove: (e) => this.pillMove(e),
+      pillUp: () => this.pillUp(),
+      resetShift: (e) => { if (e) e.stopPropagation(); this.springShiftTo(0); },
+      // chart (1c)
+      chartPath, areaPath, limitY, nowX, nowY, tStartText, tEndText,
+      limitLabelY: (Number(limitY) - 6).toFixed(1),
+      chartDown: (e) => this.chartDown(e),
+      chartMove: (e) => { if (this._chartDrag) this.chartAt(e.clientX); },
+      chartUp: () => this.chartUp(),
+      // composer (1c)
+      volCtl, abvCtl,
+      volPct: volCtl.pct, abvPct: abvCtl.pct,
+      volLabel: this._nf1.format(st.vol) + ' ml',
+      abvLabel: this._nf1.format(st.abv) + ' Vol.-%',
+      customSummary: this._nf1.format(st.vol) + ' ml · ' + this._nf1.format(st.abv) + ' %',
+      addCustom: () => this.addDrink({ name: 'Eigenes Getränk', detail: '', vol: st.vol, abv: st.abv, e: '🥤' }, 0),
+      // sheet (1b)
+      sheetY: sheetOpen ? '0%' : '110%',
+      backdropOp: sheetOpen ? '1' : '0',
+      backdropPE: sheetOpen ? 'auto' : 'none',
+      openAdd: () => this.setState({ sheet: 'addb' }),
+      closeSheet: () => this.setState({ sheet: null }),
+      agoLabel: st.agoMin === 0 ? 'jetzt' : 'vor ' + st.agoMin + ' min',
+      agoMinus: () => this.setState(s => ({ agoMin: Math.max(0, s.agoMin - 15) })),
+      agoPlus: () => this.setState(s => ({ agoMin: Math.min(600, s.agoMin + 15) })),
+      // profile overlays
+      profAY: profShown('a'), profBY: profShown('b'), profCY: profShown('c'),
+      openProfA: () => this.setState({ sheet: 'pa' }),
+      openProfB: () => this.setState({ sheet: 'pb' }),
+      openProfC: () => this.setState({ sheet: 'pc' }),
+      closeProf: () => this.setState({ sheet: null }),
+      onboarded: st.onboarded,
+      ctaLabel: st.onboarded ? 'Fertig' : 'Los geht’s',
+      finishOnboarding: () => this.setState({ onboarded: true, sheet: null }),
+      weightCtl, heightCtl,
+      weightPct: weightCtl.pct, heightPct: heightCtl.pct,
+      weightLabel: pf.weightKg + ' kg',
+      heightLabel: pf.heightCm + ' cm',
+      sexOpts,
+      sexLeft: pf.sex === 'male' ? '2px' : 'calc(50% + 0px)',
+      limitOpts,
+      limitLeft: 'calc(' + (limitIdx < 0 ? 2 : limitIdx) * 33.333 + '% + 2px)',
+      limitDim: pf.novice ? '0.4' : '1',
+      noviceBg: pf.novice ? '#34C759' : 'rgba(120,120,128,0.32)',
+      noviceLeft: pf.novice ? '22px' : '2px',
+      toggleNovice: () => this.setProfile('novice', !pf.novice)
+    };
+  }
+}
+</script>
+</body>
+</html>

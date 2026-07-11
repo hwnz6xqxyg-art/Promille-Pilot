@@ -1,0 +1,16 @@
+{
+  "name": "promille-pilot-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Promille-Pilot mobile web app (PWA) — design variation 1b 'Forecast'",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "serve": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.2",
+    "typescript": "5.3.3"
+  }
+}

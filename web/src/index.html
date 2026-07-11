@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F2F2F7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Promille-Pilot" />
+  <meta name="description" content="Promille-Pilot schätzt deinen Blutalkohol. Nur Schätzung — kein Medizinprodukt, niemals eine Grundlage für die Entscheidung, ob du fährst." />
+  <title>Promille-Pilot</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="%APP_CSS%" />
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- Header -->
+    <div class="header">
+      <h1 class="title">Heute Abend</h1>
+      <div class="header-right">
+        <div id="bacPill" class="bac-pill num">0,00&nbsp;‰</div>
+        <button id="profileBtn" class="icon-btn" data-press="icon" aria-label="Profil öffnen">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="6" r="3.4" fill="rgba(60,60,67,0.65)"/><path d="M2.2 16.5c.9-3.4 3.7-5.1 6.8-5.1s5.9 1.7 6.8 5.1z" fill="rgba(60,60,67,0.65)"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="caption">Nur Schätzung — keine Fahrentscheidung.</div>
+
+    <!-- Hero card -->
+    <section class="card hero-card" aria-live="polite">
+      <div class="section-label">UNTER DEINEM LIMIT AB</div>
+      <div id="heroTime" class="hero-time num">—</div>
+      <div id="heroSub" class="hero-sub">Füg ein Getränk hinzu.</div>
+      <div id="fcRows" class="fc-rows"></div>
+    </section>
+
+    <!-- Time scrubber -->
+    <section class="scrub-wrap">
+      <div id="scrubCard" class="card scrub-card">
+        <div class="scrub-head">
+          <span class="section-label">ZEIT</span>
+          <span id="pillLabel" class="pill-label num">Jetzt</span>
+          <button id="btnZurueck" class="link-btn" aria-label="Zeit zurücksetzen">Zurück</button>
+        </div>
+        <div class="tick-wrap" aria-hidden="true">
+          <div id="tickStrip" class="tick-strip"></div>
+          <div class="tick-needle"></div>
+        </div>
+        <div class="scrub-hint">Ziehen, um in die Zukunft zu blicken.</div>
+      </div>
+    </section>
+
+    <!-- Drinks -->
+    <section class="card drinks-card">
+      <div class="drinks-head">
+        <span class="section-label">GETRÄNKE</span>
+        <button id="btnClearAll" class="link-btn danger" hidden>Alle löschen</button>
+      </div>
+      <div id="drinkEmpty" class="drinks-empty">Noch keine Getränke — unten rechts hinzufügen.</div>
+      <div id="drinkList" class="drink-list"></div>
+    </section>
+
+    <div class="footer">Widmark + Seidl · Abbau 0,1&nbsp;‰/h (konservativ) · Kein Medizinprodukt. Sicher ist nur 0,0&nbsp;‰.</div>
+  </div>
+
+  <!-- FAB -->
+  <button id="fab" class="fab" data-press="fab" aria-label="Getränk hinzufügen">
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
+  </button>
+
+  <!-- Add-drink sheet -->
+  <div id="backdrop" class="backdrop"></div>
+  <div id="sheet" class="sheet" role="dialog" aria-modal="true" aria-label="Getränk hinzufügen">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <div class="sheet-title">Getränk hinzufügen</div>
+      <div class="ago-stepper">
+        <button id="agoMinus" class="ago-btn" data-press="icon" aria-label="15 Minuten früher">−</button>
+        <div id="agoLabel" class="ago-label num">jetzt</div>
+        <button id="agoPlus" class="ago-btn" data-press="icon" aria-label="15 Minuten später">+</button>
+      </div>
+    </div>
+    <div id="presetList" class="preset-list"></div>
+  </div>
+
+  <!-- Profile / onboarding cover -->
+  <div id="profileCover" class="profile-cover" role="dialog" aria-modal="true" aria-label="Dein Profil">
+    <div class="profile-inner">
+      <div class="profile-head">
+        <div>
+          <div class="profile-title">Dein Profil</div>
+          <div class="profile-sub">Für eine realistische Schätzung.</div>
+        </div>
+        <button id="profileClose" class="icon-btn small" data-press="icon" aria-label="Schließen" hidden>
+          <svg width="11" height="11" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="rgba(60,60,67,0.6)" stroke-width="1.9" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="card profile-card">
+        <div>
+          <div class="slider-head">
+            <span class="row-title">Gewicht</span>
+            <span id="weightLabel" class="slider-value num">80 kg</span>
+          </div>
+          <div id="weightSlider" class="pp-slider" role="slider" tabindex="0" aria-label="Gewicht"
+               aria-valuemin="40" aria-valuemax="160" aria-valuenow="80">
+            <div class="pp-slider-track"></div>
+            <div class="pp-slider-fill"></div>
+            <div class="pp-slider-thumb"></div>
+          </div>
+        </div>
+        <div>
+          <div class="slider-head">
+            <span class="row-title">Größe</span>
+            <span id="heightLabel" class="slider-value num">180 cm</span>
+          </div>
+          <div id="heightSlider" class="pp-slider" role="slider" tabindex="0" aria-label="Größe"
+               aria-valuemin="140" aria-valuemax="210" aria-valuenow="180">
+            <div class="pp-slider-track"></div>
+            <div class="pp-slider-fill"></div>
+            <div class="pp-slider-thumb"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card profile-card">
+        <div>
+          <div class="control-label">Geschlecht (biologisch)</div>
+          <div id="sexSeg" class="segment" role="radiogroup" aria-label="Geschlecht (biologisch)">
+            <div class="segment-thumb" style="width:calc(50% - 2px);"></div>
+            <button class="segment-opt" role="radio" data-value="male" aria-checked="true">Männlich</button>
+            <button class="segment-opt" role="radio" data-value="female" aria-checked="false">Weiblich</button>
+          </div>
+        </div>
+        <div id="limitBlock">
+          <div class="control-label">Dein Grenzwert</div>
+          <div id="limitSeg" class="segment" role="radiogroup" aria-label="Dein Grenzwert">
+            <div class="segment-thumb" style="width:calc(33.333% - 2px);"></div>
+            <button class="segment-opt" role="radio" data-value="0" aria-checked="false">0&nbsp;‰</button>
+            <button class="segment-opt" role="radio" data-value="0.3" aria-checked="false">0,3&nbsp;‰</button>
+            <button class="segment-opt" role="radio" data-value="0.5" aria-checked="true">0,5&nbsp;‰</button>
+          </div>
+        </div>
+        <div class="novice-row">
+          <div>
+            <div class="row-title">Fahranfänger / unter 21</div>
+            <div class="row-detail">Erzwingt 0,0&nbsp;‰</div>
+          </div>
+          <button id="noviceSwitch" class="pp-switch" role="switch" aria-checked="false" aria-label="Fahranfänger / unter 21">
+            <div class="pp-switch-knob"></div>
+          </button>
+        </div>
+      </div>
+
+      <div class="banner">Diese App schätzt nur. Sie ist kein Medizinprodukt und niemals eine Grundlage für die Entscheidung, ob du fährst.</div>
+
+      <button id="profileCta" class="cta" data-press="button">Los geht’s</button>
+    </div>
+  </div>
+
+  <script src="%APP_JS%"></script>
+</body>
+</html>

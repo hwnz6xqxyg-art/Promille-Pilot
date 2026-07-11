@@ -1,0 +1,97 @@
+/**
+ * App state + mutations. BAC is never stored — always derived from drinks + profile.
+ * Mutations persist synchronously and notify the app loop via onInvalidate.
+ */
+import type { Profile } from '../engine';
+import type { DrinkPreset } from '../data/presets';
+import {
+  StoredDrink,
+  loadDrinks,
+  loadOnboarded,
+  loadProfile,
+  saveDrinks,
+  saveOnboarded,
+  saveProfile,
+} from './persistence';
+
+function newId(): string {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `d${Date.now()}_${Math.floor(Math.random() * 1e9)}`;
+  }
+}
+
+export class Store {
+  profile: Profile;
+  drinks: StoredDrink[];
+  onboarded: boolean;
+
+  /** transient UI state */
+  shiftMin = 0; // 0..720 (+ rubber-band overflow while dragging)
+  agoMin = 0;
+  sheetOpen = false;
+  profileOpen = false;
+
+  private listeners: Array<() => void> = [];
+
+  constructor(now: number) {
+    this.profile = loadProfile();
+    this.drinks = loadDrinks(now);
+    this.onboarded = loadOnboarded();
+    this.profileOpen = !this.onboarded;
+  }
+
+  onInvalidate(fn: () => void): void {
+    this.listeners.push(fn);
+  }
+
+  invalidate(): void {
+    for (const fn of this.listeners) fn();
+  }
+
+  addDrink(p: DrinkPreset, agoMin: number, effectiveNow: number): StoredDrink {
+    const drink: StoredDrink = {
+      id: newId(),
+      timestamp: effectiveNow - agoMin * 60000,
+      volumeMl: p.vol,
+      abvPercent: p.abv,
+      label: p.name,
+      detail: p.detail,
+      e: p.e,
+    };
+    this.drinks = this.drinks.concat(drink);
+    saveDrinks(this.drinks);
+    this.invalidate();
+    return drink;
+  }
+
+  removeDrink(id: string): void {
+    this.drinks = this.drinks.filter((d) => d.id !== id);
+    saveDrinks(this.drinks);
+    this.invalidate();
+  }
+
+  clearDrinks(): void {
+    this.drinks = [];
+    saveDrinks(this.drinks);
+    this.invalidate();
+  }
+
+  // Note: targetLimitPromille keeps the user's choice even while isNovice is on —
+  // the engine's applicableLimit() enforces 0.0 for novices, so toggling the
+  // switch off restores the previously selected limit (prototype behavior).
+  setProfile(patch: Partial<Profile>): void {
+    this.profile = { ...this.profile, ...patch };
+    saveProfile(this.profile);
+    this.invalidate();
+  }
+
+  finishOnboarding(): void {
+    this.onboarded = true;
+    saveOnboarded();
+    saveProfile(this.profile); // persist even when the user accepted all defaults
+    this.profileOpen = false;
+    this.invalidate();
+  }
+}
