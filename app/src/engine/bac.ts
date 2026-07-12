@@ -160,7 +160,9 @@ export function simulate(
     return { points: [], peakBac: 0, peakTime: NaN, soberTime: null };
   }
 
-  const absorption: AbsorptionModel = opts.absorption ?? 'instant';
+  // Default: linear 45-min ramp (physiological time-to-peak). Callers can still
+  // pass { absorption: 'instant' } for the MVP step-change model.
+  const absorption: AbsorptionModel = opts.absorption ?? 'linear';
   const absMinutes = opts.absorptionMinutes ?? DEFAULT_ABSORPTION_MINUTES;
   const stepMinutes = Math.max(0.25, opts.stepMinutes ?? DEFAULT_STEP_MINUTES);
   const beta = profile.eliminationRate > 0 ? profile.eliminationRate : BETA_CONSERVATIVE;

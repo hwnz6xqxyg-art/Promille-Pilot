@@ -58,6 +58,10 @@ function drink(id: string, tOffsetMin: number, volumeMl: number, abvPercent: num
   return { id, timestamp: T0 + tOffsetMin * MS_PER_MINUTE, volumeMl, abvPercent };
 }
 
+// Default absorption is now 'linear' (45-min ramp). Cases that assert the MVP
+// step-change numbers pin the instant model explicitly.
+const INSTANT = { absorption: 'instant' } as const;
+
 // --- 1. Grundformeln -------------------------------------------------------
 approx('gramsOfAlcohol(500,5)', gramsOfAlcohol(500, 5), 20);
 approx('gramsOfAlcohol(200,12)', gramsOfAlcohol(200, 12), 19.2);
@@ -93,14 +97,17 @@ approx('peakBacForDrink 0,5L/5%/80kg', peakBacForDrink(drink('a', 0, 500, 5), ma
 {
   const drinks = [drink('a', 0, 500, 5)];
   const p = maleSimple();
-  const sim = simulate(drinks, p);
-  approx('single beer peakBac', sim.peakBac, 0.3214286, 0.01);
-  ok('single beer peakTime ~ T0', Math.abs(sim.peakTime - T0) <= 2 * MS_PER_MINUTE, sim.peakTime - T0);
+  const sim = simulate(drinks, p); // Default = linear
 
-  // Elimination ~0,1 ‰/h: Abfall zwischen +30 min und +90 min ≈ 0,1
-  const b30 = bacAtTime(drinks, p, T0 + 30 * MS_PER_MINUTE);
-  const b90 = bacAtTime(drinks, p, T0 + 90 * MS_PER_MINUTE);
-  approx('elimination ~0.1‰ per hour', b30 - b90, 0.1, 0.01);
+  // Peak-Höhe/-Zeit sind resorptionsabhängig → gegen das Sprung-Modell prüfen.
+  const simInstant = simulate(drinks, p, INSTANT);
+  approx('single beer peakBac (instant)', simInstant.peakBac, 0.3214286, 0.01);
+  ok('single beer peakTime ~ T0 (instant)', Math.abs(simInstant.peakTime - T0) <= 2 * MS_PER_MINUTE, simInstant.peakTime - T0);
+
+  // Elimination ~0,1 ‰/h: nur im Abbau-Ast messbar → Sprung-Modell.
+  const b30 = bacAtTime(drinks, p, T0 + 30 * MS_PER_MINUTE, INSTANT);
+  const b90 = bacAtTime(drinks, p, T0 + 90 * MS_PER_MINUTE, INSTANT);
+  approx('elimination ~0.1‰ per hour (instant)', b30 - b90, 0.1, 0.01);
 
   // nüchtern nach ~0,3214/0,1 = 3,214 h
   ok('single beer soberTime not null', sim.soberTime !== null);
@@ -128,8 +135,9 @@ approx('peakBacForDrink 0,5L/5%/80kg', peakBacForDrink(drink('a', 0, 500, 5), ma
   const drinks = [drink('a', 0, 500, 5), drink('b', 20, 500, 5), drink('c', 40, 500, 5)];
   const p = maleSimple();
   const sim = simulate(drinks, p);
-  // Summe der Peaks 3×0,3214 = 0,964; minus etwas Elimination über 40 min
-  ok('3 beers peak between 0.85 and 0.97', sim.peakBac > 0.85 && sim.peakBac < 0.97, sim.peakBac);
+  // Summe der Peaks 3×0,3214 = 0,964; minus etwas Elimination → Sprung-Modell.
+  const peakInstant = simulate(drinks, p, INSTANT).peakBac;
+  ok('3 beers peak between 0.85 and 0.97 (instant)', peakInstant > 0.85 && peakInstant < 0.97, peakInstant);
   ok('3 beers timeUntilBelow 0.5 > start', (timeUntilBelow(drinks, p, 0.5, T0) as number) > T0 + 40 * MS_PER_MINUTE);
   ok('3 beers soberTime after single-beer soberTime', (sim.soberTime as number) > T0 + 5 * MS_PER_HOUR);
 }
@@ -140,9 +148,10 @@ approx('peakBacForDrink 0,5L/5%/80kg', peakBacForDrink(drink('a', 0, 500, 5), ma
   const p = maleSimple();
   const justBefore = bacAtTime(drinks, p, T0 + 8 * MS_PER_HOUR - MS_PER_MINUTE);
   approx('bac ~0 right before second drink', justBefore, 0, 1e-3);
-  const justAfter = bacAtTime(drinks, p, T0 + 8 * MS_PER_HOUR + MS_PER_MINUTE);
-  // zweites Bier erreicht seinen eigenen Peak ~0,32, NICHT durch negatives Gedächtnis reduziert
-  ok('second drink reaches its own peak ~0.32', justAfter > 0.28 && justAfter < 0.34, justAfter);
+  // Sprung-Modell: zweites Bier erreicht sofort seinen eigenen Peak ~0,32,
+  // NICHT durch negatives Gedächtnis reduziert.
+  const justAfter = bacAtTime(drinks, p, T0 + 8 * MS_PER_HOUR + MS_PER_MINUTE, INSTANT);
+  ok('second drink reaches its own peak ~0.32 (instant)', justAfter > 0.28 && justAfter < 0.34, justAfter);
 }
 
 // --- 8. bacCurve ------------------------------------------------------------
@@ -151,8 +160,10 @@ approx('peakBacForDrink 0,5L/5%/80kg', peakBacForDrink(drink('a', 0, 500, 5), ma
   const p = maleSimple();
   const curve = bacCurve(drinks, p, T0, T0 + 4 * MS_PER_HOUR, 15);
   ok('bacCurve produces points', curve.length === 17, curve.length);
-  ok('bacCurve monotonic non-increasing after peak', curve[2].bac >= curve[6].bac);
   ok('bacCurve never negative', curve.every((pt) => pt.bac >= 0));
+  // Sprung-Modell: Peak bei t=0 → über die Stützpunkte nicht steigend.
+  const curveInstant = bacCurve(drinks, p, T0, T0 + 4 * MS_PER_HOUR, 15, INSTANT);
+  ok('bacCurve non-increasing after peak (instant)', curveInstant[2].bac >= curveInstant[6].bac);
 }
 
 // --- 9. Randfälle -----------------------------------------------------------
@@ -182,7 +193,9 @@ approx('peakBacForDrink 0,5L/5%/80kg', peakBacForDrink(drink('a', 0, 500, 5), ma
   // 3 Bier über 1,5 h (0 / 45 / 90 min)
   const drinks = [drink('a', 0, 500, 5), drink('b', 45, 500, 5), drink('c', 90, 500, 5)];
   const evalNow = T0 + 90 * MS_PER_MINUTE;
-  const fc = forecastThresholds(drinks, seidl, FORECAST_THRESHOLDS, evalNow);
+  // Beim letzten Getränk ausgewertet: im Sprung-Modell liegt man sicher über 0,5
+  // (linear resorbiert das letzte Bier zu diesem Zeitpunkt noch, daher gedämpft).
+  const fc = forecastThresholds(drinks, seidl, FORECAST_THRESHOLDS, evalNow, INSTANT);
 
   ok('forecastThresholds returns 3 rows', fc.length === 3);
   ok('order 0.5 / 0.3 / 0.0', fc[0].limit === 0.5 && fc[1].limit === 0.3 && fc[2].limit === 0.0);
@@ -207,9 +220,34 @@ approx('peakBacForDrink 0,5L/5%/80kg', peakBacForDrink(drink('a', 0, 500, 5), ma
     drink('a', 0, 500, 5),
     { id: 'b', timestamp: T0 + 45.5 * MS_PER_MINUTE, volumeMl: 500, abvPercent: 5 },
   ];
-  const justAfter = bacAtTime(drinks, p, T0 + 45.5 * MS_PER_MINUTE + 1000);
+  // Sprung-Modell: das Getränk zählt im Schritt, der seinen Zeitstempel enthält, sofort voll.
+  const justAfter = bacAtTime(drinks, p, T0 + 45.5 * MS_PER_MINUTE + 1000, INSTANT);
   // Erwartung: Bier 1 (0,321 − 45min·0,1/60 ≈ 0,246) + Bier 2 voll (0,321) ≈ 0,57
-  ok('off-grid drink counts immediately', justAfter > 0.5, justAfter);
+  ok('off-grid drink counts immediately (instant)', justAfter > 0.5, justAfter);
+}
+
+// --- 13. Lineare Resorption (Default): sanfter Anstieg statt Sprung -----------
+{
+  const drinks = [drink('a', 0, 500, 5)];
+  const p = maleSimple();
+  const sim = simulate(drinks, p); // Default = linear (45-min-Rampe)
+  // Peak niedriger und ~45 min später als beim Sprung-Modell.
+  approx('linear peakBac ≈ 0.246', sim.peakBac, 0.2464, 0.02);
+  ok('linear peakTime ≈ +45 min', Math.abs(sim.peakTime - (T0 + 45 * MS_PER_MINUTE)) <= 2 * MS_PER_MINUTE, sim.peakTime - T0);
+  ok('linear peak below instant peak', sim.peakBac < 0.3214286, sim.peakBac);
+  // Frisch geloggt: fast 0, dann steigend bis zum Peak.
+  const b1 = bacAtTime(drinks, p, T0 + 1 * MS_PER_MINUTE);
+  const b15 = bacAtTime(drinks, p, T0 + 15 * MS_PER_MINUTE);
+  const b30 = bacAtTime(drinks, p, T0 + 30 * MS_PER_MINUTE);
+  const b45 = bacAtTime(drinks, p, T0 + 45 * MS_PER_MINUTE);
+  ok('linear: fresh drink starts near 0', b1 < 0.05, b1);
+  ok('linear: BAC ramps up (15<30<45)', b15 < b30 && b30 < b45, { b15, b30, b45 });
+  // Getränk nach nüchterner Lücke rampt ebenfalls (kein Sofort-Sprung).
+  const gap = [drink('a', 0, 500, 5), drink('b', 8 * 60, 500, 5)];
+  const fresh1 = bacAtTime(gap, p, T0 + 8 * MS_PER_HOUR + 1 * MS_PER_MINUTE);
+  const fresh45 = bacAtTime(gap, p, T0 + 8 * MS_PER_HOUR + 45 * MS_PER_MINUTE);
+  ok('linear: 2nd drink not instant (+1min small)', fresh1 < 0.05, fresh1);
+  ok('linear: 2nd drink near its peak by +45min', fresh45 > 0.2 && fresh45 < 0.28, fresh45);
 }
 
 console.log(`\n${pass}/${pass + fail} tests passed`);
