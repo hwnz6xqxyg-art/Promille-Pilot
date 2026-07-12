@@ -20,10 +20,7 @@ export class Sheet {
   private agoPlus = qs<HTMLButtonElement>('#agoPlus');
   private firstRow: HTMLButtonElement | null = null;
 
-  constructor(
-    private store: Store,
-    private effectiveNow: () => number,
-  ) {
+  constructor(private store: Store) {
     const list = qs<HTMLElement>('#presetList');
     for (const p of PRESETS) {
       const row = el('button', 'preset-row');
@@ -38,7 +35,8 @@ export class Sheet {
         '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="rgba(0,122,255,0.12)"/><path d="M10 6v8M6 10h8" stroke="#007AFF" stroke-width="1.8" stroke-linecap="round"/></svg>',
       );
       row.addEventListener('click', () => {
-        this.store.addDrink(p, this.store.agoMin, this.effectiveNow());
+        // "vor / in X min" is relative to the real clock, never the scrubbed view time.
+        this.store.addDrink(p, this.store.agoMin, Date.now());
         this.close();
       });
       list.appendChild(row);
