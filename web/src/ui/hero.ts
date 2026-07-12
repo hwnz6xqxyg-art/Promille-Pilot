@@ -11,14 +11,18 @@ interface FcRowEls {
   sub: HTMLElement;
 }
 
+const FC_OPEN_KEY = 'pp.web.v1.fcOpen';
+
 export class Hero {
   private timeEl = qs<HTMLElement>('#heroTime');
   private subEl = qs<HTMLElement>('#heroSub');
+  private fcRows = qs<HTMLElement>('#fcRows');
+  private fcToggle = qs<HTMLButtonElement>('#fcToggle');
   private rows: FcRowEls[] = [];
   private pulseFlip = false;
+  private fcOpen = false;
 
   constructor() {
-    const wrap = qs<HTMLElement>('#fcRows');
     for (const limit of FORECAST_THRESHOLDS) {
       const row = el('div', 'fc-row');
       row.appendChild(el('span', 'fc-label', `unter ${fmtP(limit)} ‰`));
@@ -27,9 +31,31 @@ export class Hero {
       const sub = el('span', 'fc-sub num', '');
       value.append(main, sub);
       row.appendChild(value);
-      wrap.appendChild(row);
+      this.fcRows.appendChild(row);
       this.rows.push({ main, sub });
     }
+
+    // Collapsible "Alle Grenzwerte" — default collapsed, remembers the user's choice.
+    try {
+      this.fcOpen = localStorage.getItem(FC_OPEN_KEY) === '1';
+    } catch {
+      // private mode — stay with the collapsed default
+    }
+    this.applyFcOpen();
+    this.fcToggle.addEventListener('click', () => {
+      this.fcOpen = !this.fcOpen;
+      try {
+        localStorage.setItem(FC_OPEN_KEY, this.fcOpen ? '1' : '0');
+      } catch {
+        // ignore
+      }
+      this.applyFcOpen();
+    });
+  }
+
+  private applyFcOpen(): void {
+    this.fcRows.hidden = !this.fcOpen;
+    this.fcToggle.setAttribute('aria-expanded', String(this.fcOpen));
   }
 
   /** Per-frame/recompute update. forecasts is null when there are no drinks. */
