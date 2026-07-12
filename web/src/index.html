@@ -111,10 +111,18 @@
     <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
   </button>
   <div id="quickPalette" class="quick-palette" role="menu" aria-label="Schnell hinzufügen" hidden>
-    <button id="quickLast" class="quick-row" role="menuitem" type="button"></button>
-    <button id="quickBeer" class="quick-row" role="menuitem" type="button">🍺&ensp;Bier · 0,5 l</button>
-    <button id="quickWine" class="quick-row" role="menuitem" type="button">🍷&ensp;Wein · 0,2 l</button>
-    <button id="quickMore" class="quick-row quick-more" role="menuitem" type="button">Mehr …</button>
+    <button id="quickLast" class="quick-bubble" role="menuitem" type="button">
+      <span class="quick-emoji"></span><span class="quick-label"></span>
+    </button>
+    <button id="quickBeer" class="quick-bubble" role="menuitem" type="button" aria-label="Bier 0,5 l hinzufügen">
+      <span class="quick-emoji">🍺</span><span class="quick-label">Bier 0,5</span>
+    </button>
+    <button id="quickWine" class="quick-bubble" role="menuitem" type="button" aria-label="Wein 0,2 l hinzufügen">
+      <span class="quick-emoji">🍷</span><span class="quick-label">Wein 0,2</span>
+    </button>
+    <button id="quickMore" class="quick-bubble" role="menuitem" type="button" aria-label="Alle Getränke anzeigen">
+      <span class="quick-emoji quick-more-glyph">⋯</span><span class="quick-label">Mehr</span>
+    </button>
   </div>
 
   <!-- Add-drink sheet -->
