@@ -1,10 +1,15 @@
 /**
  * Add-drink bottom sheet + FAB — spring presentation via CSS transition
- * (cubic-bezier(.32,1.22,.42,1) 550ms), backdrop fade, "vor X min" stepper.
+ * (cubic-bezier(.32,1.22,.42,1) 550ms), backdrop fade, time stepper
+ * ("vor X min" · "jetzt" · "in X min").
  */
 import { PRESETS } from '../data/presets';
 import type { Store } from '../state/store';
 import { el, qs, setText } from '../lib/dom';
+
+/** Stepper range: up to 10 h into the past, 3 h into the future, in 15 min steps. */
+const PAST_MAX_MIN = 600;
+const FUTURE_MAX_MIN = 180;
 
 export class Sheet {
   private sheet = qs<HTMLElement>('#sheet');
@@ -42,7 +47,8 @@ export class Sheet {
 
     this.fab.addEventListener('click', () => this.open());
     this.backdrop.addEventListener('click', () => this.close());
-    // − steps back in time (higher agoMin), + steps forward toward "jetzt"
+    // − steps back in time (higher agoMin → "vor X min"),
+    // + steps forward in time (lower agoMin → "jetzt" → "in X min").
     this.agoMinus.addEventListener('click', () => this.setAgo(this.store.agoMin + 15));
     this.agoPlus.addEventListener('click', () => this.setAgo(this.store.agoMin - 15));
     window.addEventListener('keydown', (e) => {
@@ -51,10 +57,11 @@ export class Sheet {
   }
 
   private setAgo(v: number): void {
-    this.store.agoMin = Math.max(0, Math.min(600, v));
-    setText(this.agoLabel, this.store.agoMin === 0 ? 'jetzt' : `vor ${this.store.agoMin} min`);
-    this.agoMinus.disabled = this.store.agoMin === 600;
-    this.agoPlus.disabled = this.store.agoMin === 0;
+    const m = Math.max(-FUTURE_MAX_MIN, Math.min(PAST_MAX_MIN, v));
+    this.store.agoMin = m;
+    setText(this.agoLabel, m === 0 ? 'jetzt' : m > 0 ? `vor ${m} min` : `in ${-m} min`);
+    this.agoMinus.disabled = m === PAST_MAX_MIN;
+    this.agoPlus.disabled = m === -FUTURE_MAX_MIN;
   }
 
   open(): void {

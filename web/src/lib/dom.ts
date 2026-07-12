@@ -1,6 +1,6 @@
 /** Tiny DOM helpers — fine-grained updates without a framework. */
 
-export function qs<T extends HTMLElement>(sel: string): T {
+export function qs<T extends Element>(sel: string): T {
   const el = document.querySelector<T>(sel);
   if (!el) throw new Error(`element not found: ${sel}`);
   return el;

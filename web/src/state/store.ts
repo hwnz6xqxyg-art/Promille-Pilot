@@ -28,7 +28,7 @@ export class Store {
   onboarded: boolean;
 
   /** transient UI state */
-  shiftMin = 0; // 0..720 (+ rubber-band overflow while dragging)
+  shiftMin = 0; // minutes from real now; tick strip sets 0..720 (future), chart may set negative (past)
   agoMin = 0;
   sheetOpen = false;
   profileOpen = false;
