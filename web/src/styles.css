@@ -148,7 +148,24 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   display: flex; align-items: center; justify-content: center; color: var(--text-2);
 }
 .flip-btn svg { display: block; }
-.drinks-head-right { display: flex; align-items: center; gap: 8px; }
+/* "Alle löschen" at the bottom of the list, centered, + its confirmation dialog */
+.clear-all { display: block; margin: 10px auto 6px; padding: 8px 18px; font-size: 14px; font-weight: 600; color: var(--red); }
+.confirm-backdrop { z-index: 30; }
+.confirm-dialog {
+  position: fixed; z-index: 31; left: 50%; top: 44%;
+  transform: translate(-50%, -50%) scale(0.94);
+  width: calc(100% - 72px); max-width: 300px;
+  background: var(--card); border-radius: 18px; padding: 20px 20px 14px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25); text-align: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.22s, transform 0.28s cubic-bezier(0.32, 1.22, 0.42, 1);
+}
+.confirm-dialog.is-open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+.confirm-title { font-size: 17px; font-weight: 700; }
+.confirm-text { font-size: 13px; color: var(--text-2); margin-top: 6px; line-height: 1.45; }
+.confirm-actions { display: flex; gap: 10px; margin-top: 18px; }
+.confirm-btn { flex: 1; padding: 11px 0; border-radius: 12px; font-size: 15px; font-weight: 600; background: var(--fill-2); color: var(--accent); }
+.confirm-btn.is-danger { background: var(--red-bg); color: var(--red); font-weight: 700; }
 
 /* ---- BAC curve / timeline ---- */
 .chart-head { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 2px; }
