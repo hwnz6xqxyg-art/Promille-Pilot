@@ -172,6 +172,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .confirm-actions { display: flex; gap: 10px; margin-top: 18px; }
 .confirm-btn { flex: 1; padding: 11px 0; border-radius: 12px; font-size: 15px; font-weight: 600; background: var(--fill-2); color: var(--accent); }
 .confirm-btn.is-danger { background: var(--red-bg); color: var(--red); font-weight: 700; }
+.confirm-btn.is-primary { background: var(--accent); color: #fff; font-weight: 700; }
 
 /* ---- BAC curve / timeline ---- */
 .chart-head { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 2px; }
@@ -194,6 +195,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 .drink-row.is-new { animation: pp-row-in 0.45s cubic-bezier(0.3, 1.3, 0.5, 1); }
+.drink-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; text-align: left; padding: 0; }
+.drink-open:active { opacity: 0.6; }
 .drink-emoji { font-size: 20px; }
 .drink-info { flex: 1; min-width: 0; }
 .drink-label { font-size: 15px; font-weight: 600; }
@@ -301,6 +304,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .preset-text { flex: 1; }
 .preset-name { font-size: 15px; font-weight: 600; }
 .preset-detail { font-size: 13px; color: var(--text-2); }
+
+/* ---- edit-drink sheet ---- */
+.edit-current { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.edit-emoji { font-size: 22px; }
+.edit-name { font-size: 16px; font-weight: 700; }
+.edit-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.edit-label { font-size: 14px; font-weight: 600; color: var(--text-2); }
+.edit-swap-label { font-size: 12px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; color: var(--text-2); margin: 12px 2px 6px; }
+.edit-preset-list { max-height: 34vh; overflow-y: auto; }
+.edit-actions { display: flex; gap: 10px; margin-top: 14px; }
 
 /* ---- profile / onboarding cover ---- */
 .profile-cover {

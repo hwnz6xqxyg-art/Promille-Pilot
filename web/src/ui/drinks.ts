@@ -17,7 +17,10 @@ export class Drinks {
   private confirmCancel = qs<HTMLButtonElement>('#confirmCancel');
   private knownIds = new Set<string>();
 
-  constructor(private store: Store) {
+  constructor(
+    private store: Store,
+    private onEdit: (id: string) => void,
+  ) {
     // "Alle löschen" is destructive → confirm before clearing.
     this.clearBtn.addEventListener('click', () => this.openConfirm());
     this.confirmCancel.addEventListener('click', () => this.closeConfirm());
@@ -60,12 +63,17 @@ export class Drinks {
       currentIds.add(d.id);
       const row = el('div', 'drink-row');
       if (animateNew && !this.knownIds.has(d.id)) row.classList.add('is-new');
-      row.appendChild(el('div', 'drink-emoji', d.e));
+      // Tapping the row (everything but the ✕) opens the editor.
+      const open = el('button', 'drink-open');
+      open.setAttribute('aria-label', `Bearbeiten: ${d.label}, ${fmtClock(d.timestamp)}`);
+      open.appendChild(el('div', 'drink-emoji', d.e));
       const info = el('div', 'drink-info');
       info.appendChild(el('div', 'drink-label', d.label));
       info.appendChild(el('div', 'drink-detail', `${fmtN1(d.volumeMl)} ml · ${fmtN1(d.abvPercent)} %`));
-      row.appendChild(info);
-      row.appendChild(el('div', 'drink-time num', fmtClock(d.timestamp)));
+      open.appendChild(info);
+      open.appendChild(el('div', 'drink-time num', fmtClock(d.timestamp)));
+      open.addEventListener('click', () => this.onEdit(d.id));
+      row.appendChild(open);
       const remove = el('button', 'drink-remove');
       remove.setAttribute('aria-label', `Entfernen: ${d.label}, ${fmtClock(d.timestamp)}`);
       remove.dataset.press = 'icon';
