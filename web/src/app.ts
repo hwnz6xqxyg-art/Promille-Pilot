@@ -18,6 +18,7 @@ import { Chart } from './ui/chart';
 import { Drinks } from './ui/drinks';
 import { Sheet } from './ui/sheet';
 import { Onboarding } from './ui/onboarding';
+import { FlipCard } from './ui/flip';
 
 export class App {
   private store = new Store(Date.now());
@@ -52,6 +53,7 @@ export class App {
     this.chart = new Chart(this.store, scrubHooks);
     new Sheet(this.store);
     new Onboarding(this.store);
+    new FlipCard();
     bindPressStates();
 
     this.store.onInvalidate(() => {
