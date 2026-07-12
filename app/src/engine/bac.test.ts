@@ -173,6 +173,30 @@ describe('forecastThresholds (0,5 / 0,3 / 0,0)', () => {
   });
 });
 
+describe('"Steigt noch": momentan unter Limit, Überschreitung steht bevor', () => {
+  const p = maleSimple();
+  const evalNow = T0 + 1 * MS_PER_MINUTE;
+
+  test('3 frische Biere: kein alreadyBelow trotz Momentanwert ~0', () => {
+    const drinks = [drink('a', 0, 500, 5), drink('b', 0, 500, 5), drink('c', 0, 500, 5)];
+    const fc = forecastThresholds(drinks, p, FORECAST_THRESHOLDS, evalNow);
+    expect(fc[0].currentlyBelow).toBe(true);
+    expect(fc[0].alreadyBelow).toBe(false); // Überschreitung steht bevor
+    expect(fc[0].time).not.toBeNull();
+    expect(fc[0].time as number).toBeGreaterThan(T0 + 45 * MS_PER_MINUTE); // nach dem Peak
+    expect(fc[2].alreadyBelow).toBe(false);
+  });
+
+  test('kleines Bier (Peak < 0,5): dauerhaft darunter → alreadyBelow', () => {
+    const small = [drink('s', 0, 330, 5)];
+    const fc = forecastThresholds(small, p, FORECAST_THRESHOLDS, evalNow);
+    expect(fc[0].alreadyBelow).toBe(true);
+    expect(fc[0].time).toBeNull();
+    expect(fc[2].alreadyBelow).toBe(false); // 0,0 ‰ wird noch überschritten
+    expect(fc[2].time).not.toBeNull();
+  });
+});
+
 describe('Lineare Resorption (Default): sanfter Anstieg statt Sprung', () => {
   const drinks = [drink('a', 0, 500, 5)];
   const p = maleSimple();

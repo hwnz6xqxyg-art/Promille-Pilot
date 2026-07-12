@@ -250,5 +250,26 @@ approx('peakBacForDrink 0,5L/5%/80kg', peakBacForDrink(drink('a', 0, 500, 5), ma
   ok('linear: 2nd drink near its peak by +45min', fresh45 > 0.2 && fresh45 < 0.28, fresh45);
 }
 
+// --- 14. "Steigt noch": momentan unter Limit, Überschreitung steht bevor ------
+{
+  const p = maleSimple();
+  // 3 Bier soeben geloggt: Momentanwert ~0, Peak (~0,89 ‰) kommt erst in ~45 min.
+  const drinks = [drink('a', 0, 500, 5), drink('b', 0, 500, 5), drink('c', 0, 500, 5)];
+  const evalNow = T0 + 1 * MS_PER_MINUTE;
+  const fc = forecastThresholds(drinks, p, FORECAST_THRESHOLDS, evalNow);
+  const f05 = fc[0];
+  ok('rising: currently below 0.5', f05.currentlyBelow === true, f05);
+  ok('rising: NOT alreadyBelow (exceedance ahead)', f05.alreadyBelow === false, f05);
+  ok('rising: forecast time set', f05.time !== null);
+  ok('rising: forecast time after the coming peak', (f05.time as number) > T0 + 45 * MS_PER_MINUTE, f05.time);
+  ok('rising: 0.0 row also not alreadyBelow', fc[2].alreadyBelow === false && fc[2].time !== null, fc[2]);
+
+  // Kleines Bier, Peak (~0,21 ‰) bleibt unter 0,5: dauerhaft darunter → grünes "Jetzt" erlaubt.
+  const small = [drink('s', 0, 330, 5)];
+  const fcSmall = forecastThresholds(small, p, FORECAST_THRESHOLDS, evalNow);
+  ok('small beer: durably below 0.5 → alreadyBelow', fcSmall[0].alreadyBelow === true && fcSmall[0].time === null, fcSmall[0]);
+  ok('small beer: 0.0 row still forecasts a time', fcSmall[2].alreadyBelow === false && fcSmall[2].time !== null, fcSmall[2]);
+}
+
 console.log(`\n${pass}/${pass + fail} tests passed`);
 process.exit(fail > 0 ? 1 : 0);

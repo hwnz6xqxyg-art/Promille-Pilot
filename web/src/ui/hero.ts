@@ -103,7 +103,10 @@ export class Hero {
     } else if (heroRow.time != null) {
       setText(this.timeEl, fmtClock(heroRow.time));
       this.timeEl.className = `hero-time num is-set ${pulseClass}`;
-      setText(this.subEl, `in ${fmtDur(heroRow.time - effectiveNow)} · Limit ${fmtP(limit)} ‰`);
+      // "steigt noch": momentan unter dem Limit, aber die Kurve kreuzt es noch —
+      // die Prognosezeit gilt erst nach dem kommenden Peak.
+      const rising = heroRow.currentlyBelow ? 'steigt noch · ' : '';
+      setText(this.subEl, `${rising}in ${fmtDur(heroRow.time - effectiveNow)} · Limit ${fmtP(limit)} ‰`);
     } else {
       setText(this.timeEl, '—');
       this.timeEl.className = `hero-time num ${pulseClass}`;
