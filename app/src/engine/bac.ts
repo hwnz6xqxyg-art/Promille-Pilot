@@ -287,15 +287,23 @@ export function timeUntilBelow(
 export interface ThresholdForecast {
   /** Grenzwert in ‰. */
   limit: number;
-  /** Epoch ms, ab dem der Wert dauerhaft ≤ limit bleibt; null wenn schon darunter oder kein Durchgang im Horizont. */
+  /** Epoch ms, ab dem der Wert dauerhaft ≤ limit bleibt; null wenn dauerhaft darunter oder kein Durchgang im Horizont. */
   time: number | null;
-  /** true, wenn aktuell bereits ≤ limit. */
+  /**
+   * true, wenn aktuell ≤ limit UND der Wert auch nicht mehr darüber steigt (dauerhaft darunter).
+   * Momentan-unter-Limit mit bevorstehender Überschreitung (Resorption läuft noch) zählt NICHT —
+   * die App darf nie "unter dem Limit" melden, während die Kurve das Limit noch kreuzen wird.
+   */
   alreadyBelow: boolean;
+  /** true, wenn der Momentanwert ≤ limit ist (auch wenn er noch darüber steigen wird). */
+  currentlyBelow: boolean;
 }
 
 /**
  * Prognose für mehrere Grenzwerte gleichzeitig (z.B. 0,5 / 0,3 / 0,0 ‰).
  * Reine Ableitung aus `currentBac` + `timeUntilBelow` – keine neue Physik.
+ * Die Zukunft wird IMMER konsultiert: ohne `horizonHours` läuft die Simulation bis nüchtern,
+ * daher gilt `time === null` ⇔ ab `now` nie (mehr) über dem Limit.
  */
 export function forecastThresholds(
   drinks: Drink[],
@@ -306,9 +314,10 @@ export function forecastThresholds(
 ): ThresholdForecast[] {
   const bac = currentBac(drinks, profile, now, opts);
   return limits.map((limit) => {
-    const alreadyBelow = bac <= limit + EPS;
-    const time = alreadyBelow ? null : timeUntilBelow(drinks, profile, limit, now, opts);
-    return { limit, time, alreadyBelow };
+    const currentlyBelow = bac <= limit + EPS;
+    const time = timeUntilBelow(drinks, profile, limit, now, opts);
+    const alreadyBelow = currentlyBelow && time === null;
+    return { limit, time, alreadyBelow, currentlyBelow };
   });
 }
 
