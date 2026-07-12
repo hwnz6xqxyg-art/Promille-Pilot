@@ -35,7 +35,11 @@
       </div>
       <div id="heroTime" class="hero-time num">—</div>
       <div id="heroSub" class="hero-sub">Füg ein Getränk hinzu.</div>
-      <div id="fcRows" class="fc-rows"></div>
+      <button id="fcToggle" class="fc-toggle" type="button" aria-expanded="false" aria-controls="fcRows">
+        <span>Alle Grenzwerte</span>
+        <svg class="fc-chevron" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div id="fcRows" class="fc-rows" hidden></div>
     </section>
 
     <!-- Time scrubber -->

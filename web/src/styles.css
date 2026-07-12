@@ -79,7 +79,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .hero-time.is-set { color: var(--text); }
 .hero-time.is-now { color: var(--green); }
 .hero-sub { font-size: 14px; color: var(--text-2); margin-top: -2px; }
-.fc-rows { margin-top: 14px; }
+.fc-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; margin-top: 12px; padding: 12px 0 4px;
+  border-top: 0.5px solid var(--hairline);
+  color: var(--accent); font-size: 15px; font-weight: 600;
+}
+.fc-chevron { color: var(--accent); transition: transform 0.25s; }
+.fc-toggle[aria-expanded="true"] .fc-chevron { transform: rotate(180deg); }
+.fc-rows { margin-top: 2px; }
 .fc-row {
   display: flex; justify-content: space-between; align-items: baseline;
   padding: 10px 0; border-top: 0.5px solid var(--hairline);
