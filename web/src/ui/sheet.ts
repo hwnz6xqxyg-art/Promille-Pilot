@@ -7,6 +7,10 @@ import { PRESETS } from '../data/presets';
 import type { Store } from '../state/store';
 import { el, qs, setText } from '../lib/dom';
 import { attachSwipeToDismiss } from './sheetSwipe';
+import type { CustomMode } from './customform';
+
+const EDIT_ICON =
+  '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(60,60,67,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
 
 /** Stepper range: up to 10 h into the past, 3 h into the future, in 15 min steps. */
 const PAST_MAX_MIN = 600;
@@ -19,17 +23,36 @@ export class Sheet {
   private agoLabel = qs<HTMLElement>('#agoLabel');
   private agoMinus = qs<HTMLButtonElement>('#agoMinus');
   private agoPlus = qs<HTMLButtonElement>('#agoPlus');
+  private presetList = qs<HTMLElement>('#presetList');
   private firstRow: HTMLButtonElement | null = null;
 
-  constructor(private store: Store) {
-    const list = qs<HTMLElement>('#presetList');
+  constructor(
+    private store: Store,
+    private openCustom: (mode: CustomMode, id?: string) => void,
+  ) {
+    // FAB interaction (tap vs. long-press) is owned by QuickAdd, which calls open().
+    this.backdrop.addEventListener('click', () => this.close());
+    // − steps back in time (higher agoMin → "vor X min"),
+    // + steps forward in time (lower agoMin → "jetzt" → "in X min").
+    this.agoMinus.addEventListener('click', () => this.setAgo(this.store.agoMin + 15));
+    this.agoPlus.addEventListener('click', () => this.setAgo(this.store.agoMin - 15));
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.store.sheetOpen) this.close();
+    });
+    attachSwipeToDismiss(this.sheet, this.backdrop, () => this.close());
+  }
+
+  /** Rebuild the preset list: built-ins, then the user's custom drinks, then "＋ Eigenes". */
+  renderPresets(): void {
+    const list = this.presetList;
+    list.textContent = '';
+    this.firstRow = null;
+
     for (const p of PRESETS) {
       const row = el('button', 'preset-row');
       row.appendChild(el('div', 'preset-emoji', p.e));
       const text = el('div', 'preset-text');
-      const name = el('span', 'preset-name', p.name);
-      const detail = el('span', 'preset-detail', ` · ${p.detail}`);
-      text.append(name, detail);
+      text.append(el('span', 'preset-name', p.name), el('span', 'preset-detail', ` · ${p.detail}`));
       row.appendChild(text);
       row.insertAdjacentHTML(
         'beforeend',
@@ -44,16 +67,34 @@ export class Sheet {
       if (!this.firstRow) this.firstRow = row;
     }
 
-    // FAB interaction (tap vs. long-press) is owned by QuickAdd, which calls open().
-    this.backdrop.addEventListener('click', () => this.close());
-    // − steps back in time (higher agoMin → "vor X min"),
-    // + steps forward in time (lower agoMin → "jetzt" → "in X min").
-    this.agoMinus.addEventListener('click', () => this.setAgo(this.store.agoMin + 15));
-    this.agoPlus.addEventListener('click', () => this.setAgo(this.store.agoMin - 15));
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.store.sheetOpen) this.close();
-    });
-    attachSwipeToDismiss(this.sheet, this.backdrop, () => this.close());
+    if (this.store.customDrinks.length) {
+      list.appendChild(el('div', 'preset-group-label', 'Meine Getränke'));
+      for (const c of this.store.customDrinks) {
+        const row = el('div', 'preset-row is-custom');
+        const main = el('button', 'preset-main');
+        main.appendChild(el('div', 'preset-emoji', c.e));
+        const text = el('div', 'preset-text');
+        text.append(el('span', 'preset-name', c.name), el('span', 'preset-detail', ` · ${c.detail}`));
+        main.appendChild(text);
+        main.addEventListener('click', () => {
+          this.store.addDrink(c, this.store.agoMin, Date.now());
+          this.close();
+        });
+        row.appendChild(main);
+        const edit = el('button', 'preset-edit');
+        edit.setAttribute('aria-label', `Bearbeiten: ${c.name}`);
+        edit.dataset.press = 'icon';
+        edit.innerHTML = EDIT_ICON;
+        edit.addEventListener('click', () => this.openCustom('edit', c.id));
+        row.appendChild(edit);
+        list.appendChild(row);
+      }
+    }
+
+    const create = el('button', 'preset-row preset-create');
+    create.innerHTML = '<span class="preset-create-plus">＋</span>Eigenes Getränk';
+    create.addEventListener('click', () => this.openCustom('create'));
+    list.appendChild(create);
   }
 
   private setAgo(v: number): void {
@@ -66,6 +107,7 @@ export class Sheet {
 
   open(): void {
     this.store.sheetOpen = true;
+    this.renderPresets();
     this.setAgo(0);
     this.sheet.classList.add('is-open');
     this.backdrop.classList.add('is-open');

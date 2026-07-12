@@ -13,6 +13,19 @@ export function fmtN1(v: number): string {
   return nf1.format(v);
 }
 
+/**
+ * Preset-style volume·strength subtitle: liters for clean 100 ml multiples
+ * ("0,5 l · 5 %"), cl for clean shots ("2 cl · 40 %"), else exact ml
+ * ("250 ml · 9,5 %") — never rounds the volume misleadingly.
+ */
+export function fmtDrinkDetail(vol: number, abv: number): string {
+  let volStr: string;
+  if (vol >= 100 && vol % 100 === 0) volStr = `${fmtN1(vol / 1000)} l`;
+  else if (vol < 100 && vol % 10 === 0) volStr = `${fmtN1(vol / 10)} cl`;
+  else volStr = `${fmtN1(vol)} ml`;
+  return `${volStr} · ${fmtN1(abv)} %`;
+}
+
 /** "23:41" (24h). */
 export function fmtClock(ms: number): string {
   return new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });

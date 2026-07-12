@@ -4,6 +4,7 @@
  */
 import type { Profile } from '../engine';
 import { BETA_CONSERVATIVE, LIMIT_GENERAL } from '../engine';
+import type { CustomDrink } from '../data/presets';
 
 export interface StoredDrink {
   id: string;
@@ -18,6 +19,7 @@ export interface StoredDrink {
 const KEY_PROFILE = 'pp.web.v1.profile';
 const KEY_DRINKS = 'pp.web.v1.drinks';
 const KEY_ONBOARDED = 'pp.web.v1.onboarded';
+const KEY_CUSTOM = 'pp.web.v1.customDrinks';
 
 /** Drinks older than this are pruned on load ("Heute Abend" framing, bounded storage). */
 const MAX_DRINK_AGE_MS = 48 * 3600 * 1000;
@@ -106,6 +108,36 @@ export function loadDrinks(now: number): StoredDrink[] {
 
 export function saveDrinks(drinks: StoredDrink[]): void {
   write(KEY_DRINKS, drinks);
+}
+
+export function loadCustomDrinks(): CustomDrink[] {
+  const arr = read(KEY_CUSTOM);
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .filter(
+      (x): x is CustomDrink =>
+        !!x &&
+        typeof x === 'object' &&
+        typeof (x as CustomDrink).id === 'string' &&
+        typeof (x as CustomDrink).e === 'string' &&
+        typeof (x as CustomDrink).name === 'string' &&
+        typeof (x as CustomDrink).vol === 'number' &&
+        (x as CustomDrink).vol > 0 &&
+        typeof (x as CustomDrink).abv === 'number' &&
+        (x as CustomDrink).abv > 0,
+    )
+    .map((x) => ({
+      id: x.id,
+      e: x.e,
+      name: x.name,
+      detail: typeof x.detail === 'string' ? x.detail : '',
+      vol: x.vol,
+      abv: x.abv,
+    }));
+}
+
+export function saveCustomDrinks(drinks: CustomDrink[]): void {
+  write(KEY_CUSTOM, drinks);
 }
 
 export function loadOnboarded(): boolean {

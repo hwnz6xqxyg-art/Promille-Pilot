@@ -3,12 +3,14 @@
  * Mutations persist synchronously and notify the app loop via onInvalidate.
  */
 import type { Profile } from '../engine';
-import type { DrinkPreset } from '../data/presets';
+import type { CustomDrink, DrinkPreset } from '../data/presets';
 import {
   StoredDrink,
+  loadCustomDrinks,
   loadDrinks,
   loadOnboarded,
   loadProfile,
+  saveCustomDrinks,
   saveDrinks,
   saveOnboarded,
   saveProfile,
@@ -25,6 +27,7 @@ function newId(): string {
 export class Store {
   profile: Profile;
   drinks: StoredDrink[];
+  customDrinks: CustomDrink[];
   onboarded: boolean;
 
   /** transient UI state */
@@ -38,6 +41,7 @@ export class Store {
   constructor(now: number) {
     this.profile = loadProfile();
     this.drinks = loadDrinks(now);
+    this.customDrinks = loadCustomDrinks();
     this.onboarded = loadOnboarded();
     this.profileOpen = !this.onboarded;
   }
@@ -82,6 +86,26 @@ export class Store {
   clearDrinks(): void {
     this.drinks = [];
     saveDrinks(this.drinks);
+    this.invalidate();
+  }
+
+  addCustomDrink(fields: Omit<CustomDrink, 'id'>): CustomDrink {
+    const drink: CustomDrink = { ...fields, id: newId() };
+    this.customDrinks = this.customDrinks.concat(drink);
+    saveCustomDrinks(this.customDrinks);
+    this.invalidate();
+    return drink;
+  }
+
+  updateCustomDrink(id: string, patch: Partial<Omit<CustomDrink, 'id'>>): void {
+    this.customDrinks = this.customDrinks.map((d) => (d.id === id ? { ...d, ...patch } : d));
+    saveCustomDrinks(this.customDrinks);
+    this.invalidate();
+  }
+
+  removeCustomDrink(id: string): void {
+    this.customDrinks = this.customDrinks.filter((d) => d.id !== id);
+    saveCustomDrinks(this.customDrinks);
     this.invalidate();
   }
 

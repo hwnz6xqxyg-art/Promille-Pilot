@@ -38,19 +38,9 @@ export class DrinkEditor {
   private deleteBtn = qs<HTMLButtonElement>('#editDelete');
   private editingId: string | null = null;
 
-  constructor(private store: Store) {
-    // Preset list swaps the drink's type (and adopts that preset's amount + strength).
-    const list = qs<HTMLElement>('#editPresetList');
-    for (const p of PRESETS) {
-      const row = el('button', 'preset-row');
-      row.appendChild(el('div', 'preset-emoji', p.e));
-      const text = el('div', 'preset-text');
-      text.append(el('span', 'preset-name', p.name), el('span', 'preset-detail', ` · ${p.detail}`));
-      row.appendChild(text);
-      row.addEventListener('click', () => this.patch({ e: p.e, label: p.name, volumeMl: p.vol, abvPercent: p.abv }));
-      list.appendChild(row);
-    }
+  private swapList = qs<HTMLElement>('#editPresetList');
 
+  constructor(private store: Store) {
     this.timeMinus.addEventListener('click', () => this.stepTime(-15));
     this.timePlus.addEventListener('click', () => this.stepTime(15));
     this.volMinus.addEventListener('click', () => this.stepVol(-50));
@@ -70,9 +60,25 @@ export class DrinkEditor {
     attachSwipeToDismiss(this.sheet, this.backdrop, () => this.close());
   }
 
+  /** Build the "swap type" list: built-ins then the user's custom drinks. */
+  private renderSwapList(): void {
+    const list = this.swapList;
+    list.textContent = '';
+    for (const p of [...PRESETS, ...this.store.customDrinks]) {
+      const row = el('button', 'preset-row');
+      row.appendChild(el('div', 'preset-emoji', p.e));
+      const text = el('div', 'preset-text');
+      text.append(el('span', 'preset-name', p.name), el('span', 'preset-detail', ` · ${p.detail}`));
+      row.appendChild(text);
+      row.addEventListener('click', () => this.patch({ e: p.e, label: p.name, volumeMl: p.vol, abvPercent: p.abv }));
+      list.appendChild(row);
+    }
+  }
+
   open(id: string): void {
     this.editingId = id;
     if (!this.syncFields()) return; // drink vanished — nothing to edit
+    this.renderSwapList();
     this.sheet.classList.add('is-open');
     this.backdrop.classList.add('is-open');
     this.doneBtn.focus({ preventScroll: true });
