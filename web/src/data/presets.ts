@@ -7,6 +7,11 @@ export interface DrinkPreset {
   abv: number;
 }
 
+/** A user-created preset — a DrinkPreset with a stable id for edit/delete. */
+export interface CustomDrink extends DrinkPreset {
+  id: string;
+}
+
 export const PRESETS: DrinkPreset[] = [
   { e: '🍺', name: 'Bier', detail: '0,5 l · 5 %', vol: 500, abv: 5 },
   { e: '🍺', name: 'Bier', detail: '0,3 l · 5 %', vol: 300, abv: 5 },

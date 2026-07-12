@@ -177,6 +177,38 @@
     </div>
   </div>
 
+  <!-- Create/edit a custom drink -->
+  <div id="customBackdrop" class="backdrop"></div>
+  <div id="customSheet" class="sheet custom-sheet" role="dialog" aria-modal="true" aria-labelledby="customTitle">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <div id="customTitle" class="sheet-title">Eigenes Getränk</div>
+    </div>
+    <div id="customEmojiGrid" class="emoji-grid" role="radiogroup" aria-label="Symbol"></div>
+    <input id="customName" class="custom-input" type="text" maxlength="24" enterkeyhint="done"
+           autocomplete="off" autocapitalize="words" aria-label="Name" placeholder="Name (z. B. Espresso Martini)">
+    <div class="edit-row">
+      <span class="edit-label">Menge</span>
+      <div class="ago-stepper">
+        <button id="customVolMinus" class="ago-btn" data-press="icon" aria-label="50 Milliliter weniger">−</button>
+        <div id="customVolLabel" class="ago-label num">–</div>
+        <button id="customVolPlus" class="ago-btn" data-press="icon" aria-label="50 Milliliter mehr">+</button>
+      </div>
+    </div>
+    <div class="edit-row">
+      <span class="edit-label">Stärke</span>
+      <div class="ago-stepper">
+        <button id="customAbvMinus" class="ago-btn" data-press="icon" aria-label="0,5 Prozent weniger">−</button>
+        <div id="customAbvLabel" class="ago-label num">–</div>
+        <button id="customAbvPlus" class="ago-btn" data-press="icon" aria-label="0,5 Prozent mehr">+</button>
+      </div>
+    </div>
+    <div class="edit-actions">
+      <button id="customDelete" class="confirm-btn is-danger" type="button" hidden>Löschen</button>
+      <button id="customSave" class="confirm-btn is-primary" type="button">Speichern</button>
+    </div>
+  </div>
+
   <!-- Confirm: clear all drinks -->
   <div id="confirmBackdrop" class="backdrop confirm-backdrop"></div>
   <div id="confirmDialog" class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmText">
