@@ -16,6 +16,7 @@ import { Hero } from './ui/hero';
 import { Scrubber, type ScrubHooks } from './ui/scrubber';
 import { Chart } from './ui/chart';
 import { Drinks } from './ui/drinks';
+import { DrinkEditor } from './ui/editor';
 import { Sheet } from './ui/sheet';
 import { Onboarding } from './ui/onboarding';
 import { FlipCard } from './ui/flip';
@@ -30,7 +31,7 @@ export class App {
   private lastTs = 0;
 
   private hero = new Hero();
-  private drinks = new Drinks(this.store);
+  private drinks: Drinks;
   private scrubber: Scrubber;
   private chart: Chart;
   private bacPill = qs<HTMLElement>('#bacPill');
@@ -52,6 +53,8 @@ export class App {
     };
     this.scrubber = new Scrubber(this.store, scrubHooks);
     this.chart = new Chart(this.store, scrubHooks);
+    const editor = new DrinkEditor(this.store);
+    this.drinks = new Drinks(this.store, (id) => editor.open(id));
     const sheet = new Sheet(this.store);
     new QuickAdd(this.store, () => sheet.open());
     new Onboarding(this.store);

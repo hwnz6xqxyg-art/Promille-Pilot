@@ -72,6 +72,13 @@ export class Store {
     this.invalidate();
   }
 
+  /** Patch a logged drink in place (time, amount, strength, or type) and persist. */
+  updateDrink(id: string, patch: Partial<Omit<StoredDrink, 'id'>>): void {
+    this.drinks = this.drinks.map((d) => (d.id === id ? { ...d, ...patch } : d));
+    saveDrinks(this.drinks);
+    this.invalidate();
+  }
+
   clearDrinks(): void {
     this.drinks = [];
     saveDrinks(this.drinks);
