@@ -105,9 +105,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .hero-time.pulse-a { animation: pp-pop-a 0.45s cubic-bezier(0.3, 1.5, 0.5, 1); }
 .hero-time.pulse-b { animation: pp-pop-b 0.45s cubic-bezier(0.3, 1.5, 0.5, 1); }
 
-/* ---- time scrubber ---- */
-.scrub-wrap { padding: 14px 16px 0; }
-.scrub-card { border-radius: 16px; padding: 11px 14px 12px; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+/* ---- time scrubber (lives inside the chart card, below the curve) ---- */
+.scrub-inner {
+  margin: 4px 16px 2px; padding-top: 10px;
+  border-top: 0.5px solid var(--hairline);
+  touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
+}
 .scrub-head { display: flex; align-items: baseline; justify-content: space-between; }
 .pill-label { font-size: 14px; font-weight: 700; }
 .link-btn { font-size: 12px; font-weight: 600; color: var(--accent); opacity: 0; transition: opacity 0.3s; pointer-events: none; padding: 4px; margin: -4px; }

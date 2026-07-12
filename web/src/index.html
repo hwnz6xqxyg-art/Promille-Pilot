@@ -42,23 +42,7 @@
       <div id="fcRows" class="fc-rows" hidden></div>
     </section>
 
-    <!-- Time scrubber -->
-    <section class="scrub-wrap">
-      <div id="scrubCard" class="card scrub-card">
-        <div class="scrub-head">
-          <span class="section-label">ZEIT</span>
-          <span id="pillLabel" class="pill-label num">Jetzt</span>
-          <button id="btnZurueck" class="link-btn" aria-label="Zeit zurücksetzen">Zurück</button>
-        </div>
-        <div class="tick-wrap" aria-hidden="true">
-          <div id="tickStrip" class="tick-strip"></div>
-          <div class="tick-needle"></div>
-        </div>
-        <div class="scrub-hint">Ziehen, um in die Zukunft zu blicken.</div>
-      </div>
-    </section>
-
-    <!-- BAC curve / drink timeline -->
+    <!-- BAC curve / drink timeline + time scrubber -->
     <section class="card chart-card">
       <div class="chart-head">
         <span class="section-label">VERLAUF</span>
@@ -81,6 +65,18 @@
           <text id="chartT0" class="num" x="36" y="222" fill="rgba(60,60,67,0.55)" font-size="11"></text>
           <text id="chartT1" class="num" x="356" y="222" fill="rgba(60,60,67,0.55)" font-size="11" text-anchor="end"></text>
         </svg>
+        <div id="scrubCard" class="scrub-inner">
+          <div class="scrub-head">
+            <span class="section-label">ZEIT</span>
+            <span id="pillLabel" class="pill-label num">Jetzt</span>
+            <button id="btnZurueck" class="link-btn" aria-label="Zeit zurücksetzen">Zurück</button>
+          </div>
+          <div class="tick-wrap" aria-hidden="true">
+            <div id="tickStrip" class="tick-strip"></div>
+            <div class="tick-needle"></div>
+          </div>
+          <div class="scrub-hint">Ziehen, um in die Zukunft zu blicken.</div>
+        </div>
       </div>
       <div id="chartEmpty" class="chart-empty">
         <div class="chart-empty-title">Noch keine Kurve</div>
