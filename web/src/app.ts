@@ -13,7 +13,8 @@ import { bindPressStates, reducedMotion } from './lib/motion';
 import { qs, setText } from './lib/dom';
 import { fmtP } from './lib/format';
 import { Hero } from './ui/hero';
-import { Scrubber } from './ui/scrubber';
+import { Scrubber, type ScrubHooks } from './ui/scrubber';
+import { Chart } from './ui/chart';
 import { Drinks } from './ui/drinks';
 import { Sheet } from './ui/sheet';
 import { Onboarding } from './ui/onboarding';
@@ -29,10 +30,11 @@ export class App {
   private hero = new Hero();
   private drinks = new Drinks(this.store);
   private scrubber: Scrubber;
+  private chart: Chart;
   private bacPill = qs<HTMLElement>('#bacPill');
 
   constructor() {
-    this.scrubber = new Scrubber(this.store, {
+    const scrubHooks: ScrubHooks = {
       onChange: () => {
         this.recompute();
         this.wake();
@@ -45,7 +47,9 @@ export class App {
       cancelShiftAnim: () => {
         this.shiftAnim = null;
       },
-    });
+    };
+    this.scrubber = new Scrubber(this.store, scrubHooks);
+    this.chart = new Chart(this.store, scrubHooks);
     new Sheet(this.store, () => this.effectiveNow());
     new Onboarding(this.store);
     bindPressStates();
@@ -98,6 +102,7 @@ export class App {
     const forecasts = drinks.length > 0 ? forecastThresholds(drinks, p, FORECAST_THRESHOLDS, now) : null;
     this.hero.update(forecasts, limit, now);
     this.scrubber.update(now);
+    this.chart.update(now);
   }
 
   /** Push the spring-displayed BAC into pill + detect limit crossings (pulse). */
@@ -133,9 +138,10 @@ export class App {
     this.lastTs = ts;
 
     const bacAnimating = this.bac.tick(dt);
+    const dragging = this.scrubber.dragging || this.chart.dragging;
 
     let shiftAnimating = false;
-    if (this.shiftAnim && !this.scrubber.dragging) {
+    if (this.shiftAnim && !dragging) {
       shiftAnimating = this.shiftAnim.tick(dt);
       this.store.shiftMin = this.shiftAnim.value;
       if (!shiftAnimating) this.shiftAnim = null;
@@ -144,7 +150,7 @@ export class App {
 
     this.applyDisplayed();
 
-    if (bacAnimating || shiftAnimating || this.scrubber.dragging) {
+    if (bacAnimating || shiftAnimating || dragging) {
       this.rafId = requestAnimationFrame((t) => this.frame(t));
     } else {
       this.rafId = null;

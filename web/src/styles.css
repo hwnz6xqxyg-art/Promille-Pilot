@@ -115,6 +115,17 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .scrub-hint { margin-top: 8px; font-size: 11px; color: var(--text-3); text-align: center; }
 
+/* ---- BAC curve / timeline ---- */
+.chart-card { margin: 14px 16px 0; padding: 13px 0 6px; overflow: hidden; }
+.chart-head { padding: 0 16px 2px; }
+.chart-svg { width: 100%; display: block; touch-action: none; cursor: ew-resize; user-select: none; -webkit-user-select: none; }
+.chart-mark { transition: opacity 0.25s; }
+.chart-mark.is-future { opacity: 0.45; }
+#chartNowDot { transition: stroke 0.25s; }
+.chart-empty { padding: 26px 24px 30px; text-align: center; }
+.chart-empty-title { font-size: 15px; font-weight: 600; }
+.chart-empty-sub { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+
 /* ---- drinks ---- */
 .drinks-card { margin: 14px 16px 0; overflow: hidden; padding-bottom: 6px; }
 .drinks-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px 4px; }

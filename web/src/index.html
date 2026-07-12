@@ -52,6 +52,36 @@
       </div>
     </section>
 
+    <!-- BAC curve / drink timeline -->
+    <section class="card chart-card">
+      <div class="chart-head">
+        <span class="section-label">VERLAUF</span>
+      </div>
+      <div id="chartBody" hidden>
+        <svg id="chartSvg" class="chart-svg" viewBox="0 0 370 232" role="img" aria-label="Promilleverlauf">
+          <defs>
+            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="rgba(0,122,255,0.28)"></stop>
+              <stop offset="1" stop-color="rgba(0,122,255,0)"></stop>
+            </linearGradient>
+          </defs>
+          <path id="chartArea" d="" fill="url(#chartGrad)"></path>
+          <line id="chartLimitLine" x1="36" x2="356" y1="100" y2="100" stroke="#ff3b30" stroke-width="1.3" stroke-dasharray="5 4" opacity="0.75"></line>
+          <text id="chartLimitLabel" class="num" x="40" y="94" fill="#ff3b30" font-size="10" font-weight="700"></text>
+          <path id="chartCurve" d="" fill="none" stroke="#007aff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          <g id="chartMarks"></g>
+          <line id="chartNowLine" x1="36" x2="36" y1="16" y2="196" stroke="rgba(60,60,67,0.35)" stroke-width="1" stroke-dasharray="2 3"></line>
+          <circle id="chartNowDot" cx="36" cy="196" r="7" fill="#fff" stroke="#34c759" stroke-width="3.5"></circle>
+          <text id="chartT0" class="num" x="36" y="222" fill="rgba(60,60,67,0.55)" font-size="11"></text>
+          <text id="chartT1" class="num" x="356" y="222" fill="rgba(60,60,67,0.55)" font-size="11" text-anchor="end"></text>
+        </svg>
+      </div>
+      <div id="chartEmpty" class="chart-empty">
+        <div class="chart-empty-title">Noch keine Kurve</div>
+        <div class="chart-empty-sub">Füg ein Getränk hinzu — dein Verlauf erscheint hier.</div>
+      </div>
+    </section>
+
     <!-- Drinks -->
     <section class="card drinks-card">
       <div class="drinks-head">
