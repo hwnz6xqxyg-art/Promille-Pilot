@@ -9,17 +9,22 @@
   --green-bg: rgba(52, 199, 89, 0.14);
   --orange-bg: rgba(255, 149, 0, 0.14);
   --red-bg: rgba(255, 59, 48, 0.12);
-  --bg: #f2f2f7;
+  --bg: #071d49;
   --card: #fff;
   --text: #000;
   --text-2: rgba(60, 60, 67, 0.6);
   --text-3: rgba(60, 60, 67, 0.45);
   --text-4: rgba(60, 60, 67, 0.35);
+  /* text/fills that sit DIRECTLY on the navy background (cards keep the dark-on-white ramp) */
+  --on-bg: #fff;
+  --on-bg-2: rgba(255, 255, 255, 0.72);
+  --on-bg-3: rgba(255, 255, 255, 0.55);
+  --on-bg-fill: rgba(255, 255, 255, 0.16);
   --fill: rgba(120, 120, 128, 0.16);
   --fill-2: rgba(120, 120, 128, 0.12);
   --hairline: rgba(60, 60, 67, 0.12);
-  --banner-bg: rgba(255, 149, 0, 0.1);
-  --banner-text: #8a5200;
+  --banner-bg: rgba(255, 149, 0, 0.16);
+  --banner-text: #ffc266;
   --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   --sheet-bg: #f7f7fa;
 }
@@ -46,7 +51,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 .header { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-.title { font-size: 28px; font-weight: 800; letter-spacing: -0.6px; }
+.title { font-size: 28px; font-weight: 800; letter-spacing: -0.6px; color: var(--on-bg); }
 .header-right { display: flex; gap: 8px; align-items: center; }
 
 .bac-pill {
@@ -59,7 +64,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .bac-pill.is-drinking { color: var(--orange); background: var(--orange-bg); }
 
 .icon-btn {
-  width: 36px; height: 36px; border-radius: 50%; background: var(--fill);
+  /* lives on the navy background (header + profile cover) */
+  width: 36px; height: 36px; border-radius: 50%; background: var(--on-bg-fill);
   display: flex; align-items: center; justify-content: center;
   position: relative;
 }
@@ -67,7 +73,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* enlarge tap area to >=44px without changing visuals */
 .icon-btn::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; }
 
-.caption { padding: 2px 20px 0; font-size: 12px; color: var(--text-2); }
+.caption { padding: 2px 20px 0; font-size: 12px; color: var(--on-bg-2); }
 
 .card { background: var(--card); border-radius: 20px; box-shadow: var(--card-shadow); }
 
@@ -199,7 +205,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .drink-remove::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
 
-.footer { padding: 16px 28px calc(120px + env(safe-area-inset-bottom, 0px)); font-size: 11px; line-height: 1.5; color: var(--text-3); text-align: center; }
+.footer { padding: 16px 28px calc(120px + env(safe-area-inset-bottom, 0px)); font-size: 11px; line-height: 1.5; color: var(--on-bg-3); text-align: center; }
 
 /* ---- FAB ---- */
 .fab {
@@ -237,7 +243,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .quick-more-glyph { font-size: 26px; font-weight: 700; color: var(--accent); }
 .quick-label {
   position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%);
-  font-size: 10px; font-weight: 600; color: var(--text-2); white-space: nowrap;
+  font-size: 10px; font-weight: 600; color: var(--on-bg-2); white-space: nowrap;
   text-shadow: 0 1px 2px var(--bg);
 }
 
@@ -300,8 +306,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   display: flex; flex-direction: column; gap: 14px;
 }
 .profile-head { display: flex; align-items: flex-start; justify-content: space-between; }
-.profile-title { font-size: 30px; font-weight: 800; letter-spacing: -0.7px; }
-.profile-sub { font-size: 14px; color: var(--text-2); margin-top: 2px; }
+.profile-title { font-size: 30px; font-weight: 800; letter-spacing: -0.7px; color: var(--on-bg); }
+.profile-sub { font-size: 14px; color: var(--on-bg-2); margin-top: 2px; }
 .profile-card { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 
 .slider-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
