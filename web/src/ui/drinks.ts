@@ -3,18 +3,49 @@
  * 26 px remove buttons (enlarged tap area via CSS), "Alle löschen".
  */
 import type { Store } from '../state/store';
-import { el, qs } from '../lib/dom';
+import { el, qs, setText } from '../lib/dom';
 import { fmtClock, fmtN1 } from '../lib/format';
 
 export class Drinks {
   private list = qs<HTMLElement>('#drinkList');
   private empty = qs<HTMLElement>('#drinkEmpty');
   private clearBtn = qs<HTMLButtonElement>('#btnClearAll');
+  private confirmBackdrop = qs<HTMLElement>('#confirmBackdrop');
+  private confirmDialog = qs<HTMLElement>('#confirmDialog');
+  private confirmText = qs<HTMLElement>('#confirmText');
+  private confirmOk = qs<HTMLButtonElement>('#confirmOk');
+  private confirmCancel = qs<HTMLButtonElement>('#confirmCancel');
   private knownIds = new Set<string>();
 
   constructor(private store: Store) {
-    this.clearBtn.addEventListener('click', () => this.store.clearDrinks());
+    // "Alle löschen" is destructive → confirm before clearing.
+    this.clearBtn.addEventListener('click', () => this.openConfirm());
+    this.confirmCancel.addEventListener('click', () => this.closeConfirm());
+    this.confirmBackdrop.addEventListener('click', () => this.closeConfirm());
+    this.confirmOk.addEventListener('click', () => {
+      this.store.clearDrinks();
+      this.closeConfirm();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.confirmDialog.classList.contains('is-open')) this.closeConfirm();
+    });
     this.render(false);
+  }
+
+  private openConfirm(): void {
+    const n = this.store.drinks.length;
+    setText(
+      this.confirmText,
+      `${n === 1 ? '1 Getränk wird' : `Alle ${n} Getränke werden`} entfernt. Das lässt sich nicht rückgängig machen.`,
+    );
+    this.confirmBackdrop.classList.add('is-open');
+    this.confirmDialog.classList.add('is-open');
+    this.confirmCancel.focus({ preventScroll: true }); // default to the safe action
+  }
+
+  private closeConfirm(): void {
+    this.confirmBackdrop.classList.remove('is-open');
+    this.confirmDialog.classList.remove('is-open');
   }
 
   /** Re-render on drinks mutation (not per frame). */
