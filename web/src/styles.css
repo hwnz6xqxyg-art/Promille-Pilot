@@ -269,9 +269,19 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   transform: translateY(110%);
   transition: transform 0.55s cubic-bezier(0.32, 1.22, 0.42, 1);
   padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  touch-action: none; /* own the vertical swipe-to-dismiss; don't let the browser scroll/refresh */
 }
 .sheet.is-open { transform: translateY(0); }
-.sheet-handle { width: 38px; height: 5px; border-radius: 3px; background: rgba(60, 60, 67, 0.25); margin: 0 auto 12px; }
+.sheet-handle {
+  position: relative;
+  width: 38px; height: 5px; border-radius: 3px; background: rgba(60, 60, 67, 0.25);
+  margin: 0 auto 12px; cursor: grab;
+}
+/* Invisible enlarged grab target so the thin handle is easy to catch. */
+.sheet-handle::before {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%); width: 140px; height: 30px;
+}
 .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .sheet-title { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
 .ago-stepper { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 999px; padding: 4px 6px; }
