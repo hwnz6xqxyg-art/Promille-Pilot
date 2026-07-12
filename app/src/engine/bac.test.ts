@@ -40,6 +40,10 @@ const drink = (id: string, tMin: number, ml: number, abv: number): Drink => ({
   abvPercent: abv,
 });
 
+// Default absorption is now 'linear' (45-min ramp). Cases asserting the MVP
+// step-change numbers pin the instant model explicitly.
+const INSTANT = { absorption: 'instant' } as const;
+
 describe('Grundformeln', () => {
   test('gramsOfAlcohol', () => {
     expect(gramsOfAlcohol(500, 5)).toBeCloseTo(20, 6);
@@ -73,12 +77,12 @@ describe('distributionFactor & Limit', () => {
 describe('Simulation: ein Bier', () => {
   const drinks = [drink('a', 0, 500, 5)];
   const p = maleSimple();
-  test('Peak ~0,32 ‰', () => {
-    expect(simulate(drinks, p).peakBac).toBeCloseTo(0.32, 1);
+  test('Peak ~0,32 ‰ (instant)', () => {
+    expect(simulate(drinks, p, INSTANT).peakBac).toBeCloseTo(0.32, 1);
   });
-  test('Elimination ~0,1 ‰/h', () => {
-    const b30 = bacAtTime(drinks, p, T0 + 30 * MS_PER_MINUTE);
-    const b90 = bacAtTime(drinks, p, T0 + 90 * MS_PER_MINUTE);
+  test('Elimination ~0,1 ‰/h (instant, im Abbau-Ast)', () => {
+    const b30 = bacAtTime(drinks, p, T0 + 30 * MS_PER_MINUTE, INSTANT);
+    const b90 = bacAtTime(drinks, p, T0 + 90 * MS_PER_MINUTE, INSTANT);
     expect(b30 - b90).toBeCloseTo(0.1, 2);
   });
   test('nüchtern nach ~3,2 h', () => {
@@ -106,28 +110,30 @@ describe('timeUntilBelow', () => {
 });
 
 describe('Mehrere Getränke & nüchterne Lücke', () => {
-  test('3 Bier: Peak 0,85–0,97', () => {
+  test('3 Bier: Peak 0,85–0,97 (instant)', () => {
     const drinks = [drink('a', 0, 500, 5), drink('b', 20, 500, 5), drink('c', 40, 500, 5)];
-    const peak = simulate(drinks, maleSimple()).peakBac;
+    const peak = simulate(drinks, maleSimple(), INSTANT).peakBac;
     expect(peak).toBeGreaterThan(0.85);
     expect(peak).toBeLessThan(0.97);
   });
-  test('zweites Bier 8 h später erbt kein negatives Gedächtnis', () => {
+  test('zweites Bier 8 h später erbt kein negatives Gedächtnis (instant)', () => {
     const drinks = [drink('a', 0, 500, 5), drink('b', 8 * 60, 500, 5)];
     const p = maleSimple();
     expect(bacAtTime(drinks, p, T0 + 8 * MS_PER_HOUR - MS_PER_MINUTE)).toBeCloseTo(0, 3);
-    const after = bacAtTime(drinks, p, T0 + 8 * MS_PER_HOUR + MS_PER_MINUTE);
+    const after = bacAtTime(drinks, p, T0 + 8 * MS_PER_HOUR + MS_PER_MINUTE, INSTANT);
     expect(after).toBeGreaterThan(0.28);
     expect(after).toBeLessThan(0.34);
   });
 });
 
 describe('bacCurve & Randfälle', () => {
-  test('Kurve nicht negativ, fällt nach Peak', () => {
+  test('Kurve nicht negativ, fällt nach Peak (instant)', () => {
     const curve = bacCurve([drink('a', 0, 500, 5)], maleSimple(), T0, T0 + 4 * MS_PER_HOUR, 15);
     expect(curve.length).toBe(17);
     expect(curve.every((pt) => pt.bac >= 0)).toBe(true);
-    expect(curve[2].bac).toBeGreaterThanOrEqual(curve[6].bac);
+    // Peak bei t=0 nur im Sprung-Modell → dort über die Stützpunkte nicht steigend.
+    const curveInstant = bacCurve([drink('a', 0, 500, 5)], maleSimple(), T0, T0 + 4 * MS_PER_HOUR, 15, INSTANT);
+    expect(curveInstant[2].bac).toBeGreaterThanOrEqual(curveInstant[6].bac);
   });
   test('leer / Gewicht 0 → 0, kein Crash', () => {
     expect(currentBac([], maleSimple(), T0)).toBe(0);
@@ -145,8 +151,9 @@ describe('forecastThresholds (0,5 / 0,3 / 0,0)', () => {
   const seidl: Profile = { ...maleSimple(), distributionMode: 'seidl', heightCm: 180 };
   const drinks = [drink('a', 0, 500, 5), drink('b', 45, 500, 5), drink('c', 90, 500, 5)];
 
-  test('3 Bier über 1,5 h: 3 Zeilen, aufsteigende Zeiten, alle über Limit', () => {
-    const fc = forecastThresholds(drinks, seidl, FORECAST_THRESHOLDS, T0 + 90 * MS_PER_MINUTE);
+  test('3 Bier über 1,5 h: 3 Zeilen, aufsteigende Zeiten, alle über Limit (instant)', () => {
+    // Beim letzten Getränk ausgewertet — im Sprung-Modell sicher über 0,5.
+    const fc = forecastThresholds(drinks, seidl, FORECAST_THRESHOLDS, T0 + 90 * MS_PER_MINUTE, INSTANT);
     expect(fc.map((f) => f.limit)).toEqual([0.5, 0.3, 0.0]);
     expect(fc.every((f) => f.alreadyBelow === false)).toBe(true);
     expect(fc.every((f) => f.time !== null)).toBe(true);
@@ -159,9 +166,39 @@ describe('forecastThresholds (0,5 / 0,3 / 0,0)', () => {
     expect(later.every((f) => f.alreadyBelow && f.time === null)).toBe(true);
   });
 
-  test('Getränk zwischen Simulationsschritten zählt sofort voll', () => {
+  test('Getränk zwischen Simulationsschritten zählt sofort voll (instant)', () => {
     const p = maleSimple();
     const two = [drink('a', 0, 500, 5), { id: 'b', timestamp: T0 + 45.5 * MS_PER_MINUTE, volumeMl: 500, abvPercent: 5 }];
-    expect(bacAtTime(two, p, T0 + 45.5 * MS_PER_MINUTE + 1000)).toBeGreaterThan(0.5);
+    expect(bacAtTime(two, p, T0 + 45.5 * MS_PER_MINUTE + 1000, INSTANT)).toBeGreaterThan(0.5);
+  });
+});
+
+describe('Lineare Resorption (Default): sanfter Anstieg statt Sprung', () => {
+  const drinks = [drink('a', 0, 500, 5)];
+  const p = maleSimple();
+
+  test('Peak niedriger (~0,246) und ~45 min später als instant', () => {
+    const sim = simulate(drinks, p); // Default = linear
+    expect(sim.peakBac).toBeCloseTo(0.246, 2);
+    expect(sim.peakBac).toBeLessThan(0.3214286);
+    expect(Math.abs(sim.peakTime - (T0 + 45 * MS_PER_MINUTE))).toBeLessThanOrEqual(2 * MS_PER_MINUTE);
+  });
+
+  test('frisch geloggt: fast 0, dann steigend bis zum Peak', () => {
+    const b1 = bacAtTime(drinks, p, T0 + 1 * MS_PER_MINUTE);
+    const b15 = bacAtTime(drinks, p, T0 + 15 * MS_PER_MINUTE);
+    const b30 = bacAtTime(drinks, p, T0 + 30 * MS_PER_MINUTE);
+    const b45 = bacAtTime(drinks, p, T0 + 45 * MS_PER_MINUTE);
+    expect(b1).toBeLessThan(0.05);
+    expect(b15).toBeLessThan(b30);
+    expect(b30).toBeLessThan(b45);
+  });
+
+  test('Getränk nach nüchterner Lücke rampt ebenfalls (kein Sofort-Sprung)', () => {
+    const gap = [drink('a', 0, 500, 5), drink('b', 8 * 60, 500, 5)];
+    expect(bacAtTime(gap, p, T0 + 8 * MS_PER_HOUR + 1 * MS_PER_MINUTE)).toBeLessThan(0.05);
+    const fresh45 = bacAtTime(gap, p, T0 + 8 * MS_PER_HOUR + 45 * MS_PER_MINUTE);
+    expect(fresh45).toBeGreaterThan(0.2);
+    expect(fresh45).toBeLessThan(0.28);
   });
 });

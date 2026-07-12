@@ -130,9 +130,9 @@ Pure, deterministic, RN-/DOM-free TypeScript module. **BAC is never stored — a
   (the "below limit at" forecast), so the app **never reports sober too early**. 0.15 ‰/h exists
   only as an optional "average momentary estimate" — never for the driving forecast.
 - **Resorption deficit:** ingested alcohol × 0.9 (10 % deficit) as a documented constant.
-- **Absorption:** time-to-peak ~30–60 min. MVP treats intake as instantaneous
-  (`absorption: 'instant'`); the refinement ramps each drink linearly over ~45 min
-  (`absorption: 'linear'`) — without changing any caller.
+- **Absorption:** time-to-peak ~30–60 min. **Default is a linear ~45-min ramp per drink**
+  (`absorption: 'linear'`); the original MVP step-change model stays available via
+  `absorption: 'instant'`. The default changed without touching any caller.
 
 ### Types & Constants
 ```ts
@@ -337,7 +337,7 @@ Mirror the style of the root `engine-core.test.js` (pure fixtures, `approx()`).
   stores; onboarding gate; dashboard; `add-drink` modal with presets; `log` list.
 - **Phase 2 — Chart** ✅: `simulate()` → SVG chart with limit line + now marker.
 - **Change A** ✅: multi-threshold forecast (0.5/0.3/0.0) + one-tap "+ Bier" quick add.
-- **Phase 3 — Compliance & polish** (open): absorption default to `linear` (45-min ramp),
+- **Phase 3 — Compliance & polish** (open): ~~absorption default to `linear` (45-min ramp)~~ ✅,
   accessibility, icons/splash, copy review ("never 'safe to drive'"), empty/error states, migration.
 - **Phase 4 — Monetization** (open): AdMob + UMP consent, banners on `log`/`chart` (not on safety
   surfaces), `useAdsEnabled` flag, restrictive ad categories.
