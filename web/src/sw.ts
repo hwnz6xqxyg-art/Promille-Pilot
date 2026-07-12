@@ -45,16 +45,18 @@ sw.addEventListener('activate', (event: ExtendableEvent) => {
 sw.addEventListener('fetch', (event: FetchEventLike) => {
   const req = event.request;
   if (req.method !== 'GET' || !req.url.startsWith(location.origin)) return;
-  event.respondWith(
-    caches.match(req).then(
-      (hit) =>
-        hit ??
-        fetch(req).catch(() => {
-          if (req.mode === 'navigate') {
-            return caches.match('./index.html').then((page) => page ?? Response.error());
-          }
-          return Response.error();
-        }),
-    ),
-  );
+
+  // Navigations: network-first, so a new deploy is picked up as soon as the
+  // device is online. Fall back to the cached shell only when offline.
+  // (Cache-first here is what made deploys "stick" — the old page kept being
+  // served from cache, pointing at the old hashed bundle.)
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req).catch(() => caches.match('./index.html').then((page) => page ?? Response.error())),
+    );
+    return;
+  }
+
+  // Hashed, immutable assets (JS/CSS/icons): cache-first for instant, offline loads.
+  event.respondWith(caches.match(req).then((hit) => hit ?? fetch(req)));
 });
