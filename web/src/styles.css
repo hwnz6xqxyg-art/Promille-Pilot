@@ -208,7 +208,29 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 8px 24px rgba(0, 122, 255, 0.4); z-index: 20;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* long-press friendly: no iOS callout/selection, no scroll from the FAB */
+  -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; touch-action: none;
 }
+
+/* ---- quick-add palette (long-press on the FAB) ---- */
+.quick-palette {
+  position: fixed; right: 20px; bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  z-index: 21; min-width: 210px;
+  background: var(--card); border-radius: 16px; overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+  transform-origin: bottom right;
+  opacity: 0; transform: scale(0.9) translateY(6px); pointer-events: none;
+  transition: opacity 0.2s, transform 0.28s cubic-bezier(0.32, 1.4, 0.5, 1);
+}
+.quick-palette.is-open { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+.quick-row {
+  display: block; width: 100%; text-align: left;
+  padding: 12px 18px; font-size: 15px; font-weight: 600;
+  border-top: 0.5px solid var(--hairline);
+}
+.quick-row:first-child { border-top: none; }
+.quick-row .quick-sub { color: var(--text-2); font-weight: 400; }
+.quick-more { color: var(--accent); }
 
 /* ---- press states (bound via data-press by lib/motion.ts) ---- */
 .press-tile.is-pressed { transform: scale(0.92); }

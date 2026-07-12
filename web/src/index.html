@@ -106,10 +106,16 @@
     <div class="footer">Widmark + Seidl · Abbau 0,1&nbsp;‰/h (konservativ) · Kein Medizinprodukt. Sicher ist nur 0,0&nbsp;‰.</div>
   </div>
 
-  <!-- FAB -->
-  <button id="fab" class="fab" data-press="fab" aria-label="Getränk hinzufügen">
+  <!-- FAB + quick-add palette (long-press) -->
+  <button id="fab" class="fab" data-press="fab" aria-label="Getränk hinzufügen" aria-haspopup="menu">
     <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
   </button>
+  <div id="quickPalette" class="quick-palette" role="menu" aria-label="Schnell hinzufügen" hidden>
+    <button id="quickLast" class="quick-row" role="menuitem" type="button"></button>
+    <button id="quickBeer" class="quick-row" role="menuitem" type="button">🍺&ensp;Bier · 0,5 l</button>
+    <button id="quickWine" class="quick-row" role="menuitem" type="button">🍷&ensp;Wein · 0,2 l</button>
+    <button id="quickMore" class="quick-row quick-more" role="menuitem" type="button">Mehr …</button>
+  </div>
 
   <!-- Add-drink sheet -->
   <div id="backdrop" class="backdrop"></div>
