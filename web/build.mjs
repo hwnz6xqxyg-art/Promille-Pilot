@@ -37,8 +37,6 @@ const jsFile = outputs.find((f) => f.startsWith('main.') && f.endsWith('.js'));
 const cssFile = outputs.find((f) => f.startsWith('styles.') && f.endsWith('.css'));
 if (!jsFile || !cssFile) throw new Error('esbuild outputs missing: ' + outputs.join(', '));
 
-const buildHash = createHash('sha256').update(jsFile + cssFile).digest('hex').slice(0, 10);
-
 // 2) index.html from template with hashed asset names.
 const html = readFileSync(join(here, 'src/index.html'), 'utf8')
   .replace('%APP_JS%', './' + jsFile)
@@ -52,7 +50,14 @@ for (const f of readdirSync(join(here, 'assets'))) {
   cpSync(join(here, 'assets', f), join(dist, f));
 }
 
-// 4) Service worker (stable name, cache-busted via cache name + precache list).
+// 4) Build hash over bundle names AND every file now in dist/ (index.html, icons,
+//    manifest, …) — an assets-only change (e.g. new icons) must still change the
+//    SW cache name, otherwise installed clients keep serving the old cached files.
+const hasher = createHash('sha256').update(jsFile + cssFile);
+for (const f of readdirSync(dist).sort()) hasher.update(f).update(readFileSync(join(dist, f)));
+const buildHash = hasher.digest('hex').slice(0, 10);
+
+// 5) Service worker (stable name, cache-busted via cache name + precache list).
 const precache = ['./', './index.html', './' + jsFile, './' + cssFile, './manifest.webmanifest']
   .concat(readdirSync(dist).filter((f) => f.endsWith('.png')).map((f) => './' + f));
 
