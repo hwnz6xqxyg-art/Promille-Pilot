@@ -42,8 +42,9 @@ export class Sheet {
 
     this.fab.addEventListener('click', () => this.open());
     this.backdrop.addEventListener('click', () => this.close());
-    this.agoMinus.addEventListener('click', () => this.setAgo(this.store.agoMin - 15));
-    this.agoPlus.addEventListener('click', () => this.setAgo(this.store.agoMin + 15));
+    // − steps back in time (higher agoMin), + steps forward toward "jetzt"
+    this.agoMinus.addEventListener('click', () => this.setAgo(this.store.agoMin + 15));
+    this.agoPlus.addEventListener('click', () => this.setAgo(this.store.agoMin - 15));
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.store.sheetOpen) this.close();
     });
@@ -52,8 +53,8 @@ export class Sheet {
   private setAgo(v: number): void {
     this.store.agoMin = Math.max(0, Math.min(600, v));
     setText(this.agoLabel, this.store.agoMin === 0 ? 'jetzt' : `vor ${this.store.agoMin} min`);
-    this.agoMinus.disabled = this.store.agoMin === 0;
-    this.agoPlus.disabled = this.store.agoMin === 600;
+    this.agoMinus.disabled = this.store.agoMin === 600;
+    this.agoPlus.disabled = this.store.agoMin === 0;
   }
 
   open(): void {
