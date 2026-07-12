@@ -19,6 +19,8 @@ export class Sheet {
   private agoMinus = qs<HTMLButtonElement>('#agoMinus');
   private agoPlus = qs<HTMLButtonElement>('#agoPlus');
   private firstRow: HTMLButtonElement | null = null;
+  /** Active swipe-to-dismiss drag, or null. `ty` = current translateY, `vy` = px/ms downward. */
+  private drag: { y: number; h: number; ty: number; vy: number; lastY: number; lastT: number } | null = null;
 
   constructor(private store: Store) {
     const list = qs<HTMLElement>('#presetList');
@@ -52,6 +54,47 @@ export class Sheet {
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.store.sheetOpen) this.close();
     });
+    this.wireSwipeToDismiss();
+  }
+
+  /**
+   * Pull the sheet (grab-handle or head) downward to dismiss; a short drag springs
+   * back. During the drag the CSS transform-transition is suspended so the sheet
+   * tracks the finger 1:1, then handed back to CSS for the release animation.
+   */
+  private wireSwipeToDismiss(): void {
+    this.sheet.addEventListener('pointerdown', (e) => {
+      // Preset rows and the +/− steppers stay pure taps — never start a drag on them.
+      if ((e.target as HTMLElement).closest('button')) return;
+      this.sheet.setPointerCapture(e.pointerId);
+      this.drag = { y: e.clientY, h: this.sheet.offsetHeight, ty: 0, vy: 0, lastY: e.clientY, lastT: e.timeStamp };
+      this.sheet.style.transition = 'none';
+    });
+    this.sheet.addEventListener('pointermove', (e) => {
+      const d = this.drag;
+      if (!d) return;
+      const ty = Math.max(0, e.clientY - d.y); // down is positive; can't drag above the open position
+      d.vy = (e.clientY - d.lastY) / Math.max(1, e.timeStamp - d.lastT);
+      d.lastY = e.clientY;
+      d.lastT = e.timeStamp;
+      d.ty = ty;
+      this.sheet.style.transform = `translateY(${ty}px)`;
+      this.backdrop.style.opacity = String(Math.max(0, 1 - ty / d.h)); // dim lightens as the sheet pulls away
+    });
+    const release = (): void => {
+      const d = this.drag;
+      if (!d) return;
+      this.drag = null;
+      // Hand animation back to the CSS transition, arming it with a reflow before the transform clears.
+      this.sheet.style.transition = '';
+      void this.sheet.offsetHeight;
+      this.sheet.style.transform = '';
+      this.backdrop.style.opacity = '';
+      // Past ~30 % of the sheet height, or a firm downward flick, commits the dismiss.
+      if (d.ty > d.h * 0.3 || d.vy > 0.6) this.close();
+    };
+    this.sheet.addEventListener('pointerup', release);
+    this.sheet.addEventListener('pointercancel', release);
   }
 
   private setAgo(v: number): void {
