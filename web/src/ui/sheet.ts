@@ -43,7 +43,7 @@ export class Sheet {
       if (!this.firstRow) this.firstRow = row;
     }
 
-    this.fab.addEventListener('click', () => this.open());
+    // FAB interaction (tap vs. long-press) is owned by QuickAdd, which calls open().
     this.backdrop.addEventListener('click', () => this.close());
     // − steps back in time (higher agoMin → "vor X min"),
     // + steps forward in time (lower agoMin → "jetzt" → "in X min").

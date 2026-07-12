@@ -19,6 +19,7 @@ import { Drinks } from './ui/drinks';
 import { Sheet } from './ui/sheet';
 import { Onboarding } from './ui/onboarding';
 import { FlipCard } from './ui/flip';
+import { QuickAdd } from './ui/quickadd';
 
 export class App {
   private store = new Store(Date.now());
@@ -51,7 +52,8 @@ export class App {
     };
     this.scrubber = new Scrubber(this.store, scrubHooks);
     this.chart = new Chart(this.store, scrubHooks);
-    new Sheet(this.store);
+    const sheet = new Sheet(this.store);
+    new QuickAdd(this.store, () => sheet.open());
     new Onboarding(this.store);
     new FlipCard();
     bindPressStates();
