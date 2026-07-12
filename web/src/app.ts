@@ -50,7 +50,7 @@ export class App {
     };
     this.scrubber = new Scrubber(this.store, scrubHooks);
     this.chart = new Chart(this.store, scrubHooks);
-    new Sheet(this.store, () => this.effectiveNow());
+    new Sheet(this.store);
     new Onboarding(this.store);
     bindPressStates();
 
