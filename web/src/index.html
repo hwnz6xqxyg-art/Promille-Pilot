@@ -20,7 +20,6 @@
     <div class="header">
       <h1 class="title">Heute Abend</h1>
       <div class="header-right">
-        <div id="bacPill" class="bac-pill num">0,00&nbsp;‰</div>
         <button id="profileBtn" class="icon-btn" data-press="icon" aria-label="Profil öffnen">
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="6" r="3.4" fill="rgba(60,60,67,0.65)"/><path d="M2.2 16.5c.9-3.4 3.7-5.1 6.8-5.1s5.9 1.7 6.8 5.1z" fill="rgba(60,60,67,0.65)"/></svg>
         </button>
@@ -30,7 +29,10 @@
 
     <!-- Hero card -->
     <section class="card hero-card" aria-live="polite">
-      <div class="section-label">UNTER DEINEM LIMIT AB</div>
+      <div class="hero-head">
+        <div class="section-label">UNTER DEINEM LIMIT AB</div>
+        <div id="bacPill" class="bac-pill num" aria-live="off">0,00&nbsp;‰</div>
+      </div>
       <div id="heroTime" class="hero-time num">—</div>
       <div id="heroSub" class="hero-sub">Füg ein Getränk hinzu.</div>
       <div id="fcRows" class="fc-rows"></div>
