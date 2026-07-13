@@ -79,6 +79,49 @@ function svgEl(tag: string, attrs: Record<string, string | number>, text?: strin
   return n;
 }
 
+/**
+ * Smooth path through all points via monotone cubic interpolation
+ * (Fritsch–Carlson tangents, à la d3 curveMonotoneX). Rounds the corners of the
+ * estimate curve WITHOUT overshooting: it passes through every sample, never
+ * bulges above the true peak or below zero, and keeps rising/falling segments
+ * monotone — soft, but never claims more than the data.
+ */
+function monotonePathD(xs: number[], ys: number[]): string {
+  const n = xs.length;
+  if (n === 0) return '';
+  if (n === 1) return `M${xs[0].toFixed(1)},${ys[0].toFixed(1)}`;
+
+  // Secant slopes, then Fritsch–Carlson tangents.
+  const dx: number[] = [];
+  const s: number[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    dx.push(Math.max(1e-9, xs[i + 1] - xs[i]));
+    s.push((ys[i + 1] - ys[i]) / dx[i]);
+  }
+  const m: number[] = new Array(n);
+  m[0] = s[0];
+  m[n - 1] = s[n - 2];
+  for (let i = 1; i < n - 1; i++) {
+    if (s[i - 1] * s[i] <= 0) {
+      m[i] = 0; // local extremum → flat tangent (rounded crest at exact height)
+    } else {
+      const w1 = 2 * dx[i] + dx[i - 1];
+      const w2 = dx[i] + 2 * dx[i - 1];
+      m[i] = (w1 + w2) / (w1 / s[i - 1] + w2 / s[i]); // weighted harmonic mean — no overshoot
+    }
+  }
+
+  let d = `M${xs[0].toFixed(1)},${ys[0].toFixed(1)}`;
+  for (let i = 0; i < n - 1; i++) {
+    const h = dx[i] / 3;
+    d +=
+      ` C${(xs[i] + h).toFixed(1)},${(ys[i] + m[i] * h).toFixed(1)}` +
+      ` ${(xs[i + 1] - h).toFixed(1)},${(ys[i + 1] - m[i + 1] * h).toFixed(1)}` +
+      ` ${xs[i + 1].toFixed(1)},${ys[i + 1].toFixed(1)}`;
+  }
+  return d;
+}
+
 export class Chart {
   private body = qs<HTMLElement>('#chartBody');
   private empty = qs<HTMLElement>('#chartEmpty');
@@ -188,13 +231,22 @@ export class Chart {
 
   private renderGeom(g: Geom, drinks: StoredDrink[]): void {
     const pts = g.points;
-    const step = Math.max(1, Math.floor(pts.length / 200));
+    // Coarse anchors on purpose: the monotone spline can only round corners within
+    // one segment, so ~48 anchors ≈ 7 px segments give the visibly soft, "estimate,
+    // not measurement" look. The exact peak is spliced back in below.
+    const step = Math.max(1, Math.floor(pts.length / 48));
     const seg: BacPoint[] = [];
     for (let i = 0; i < pts.length; i += step) seg.push(pts[i]);
     if (seg[seg.length - 1] !== pts[pts.length - 1]) seg.push(pts[pts.length - 1]);
-    const curveD = seg
-      .map((pt, i) => (i ? 'L' : 'M') + xOf(pt.t, g).toFixed(1) + ',' + yOf(pt.bac, g).toFixed(1))
-      .join(' ');
+    // Downsampling must not skip the true crest — splice the peak sample back in.
+    if (isFinite(g.peakTime) && !seg.some((pt) => pt.t === g.peakTime)) {
+      const at = seg.findIndex((pt) => pt.t > g.peakTime);
+      if (at > 0) seg.splice(at, 0, { t: g.peakTime, bac: g.peakBac });
+    }
+    const curveD = monotonePathD(
+      seg.map((pt) => xOf(pt.t, g)),
+      seg.map((pt) => yOf(pt.bac, g)),
+    );
     this.curve.setAttribute('d', curveD);
     this.area.setAttribute(
       'd',
