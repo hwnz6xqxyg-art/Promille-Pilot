@@ -10,8 +10,8 @@ import { el, qs, setText } from '../lib/dom';
 import { fmtClock, fmtN1 } from '../lib/format';
 import { attachSwipeToDismiss } from './sheetSwipe';
 
-/** Sane time bounds: reopened evenings can be days old; future capped like the add-sheet. */
-const PAST_MAX_MS = 14 * 24 * 3600 * 1000;
+/** Sane time bounds: reopened evenings can be weeks old; future capped like the add-sheet. */
+const PAST_MAX_MS = 60 * 24 * 3600 * 1000;
 const FUTURE_MAX_MS = 3 * 3600 * 1000;
 const VOL_MIN = 10;
 const VOL_MAX = 2000;

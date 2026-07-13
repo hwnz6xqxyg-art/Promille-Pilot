@@ -20,6 +20,7 @@ import { DrinkEditor } from './ui/editor';
 import { Sheet } from './ui/sheet';
 import { Onboarding } from './ui/onboarding';
 import { History } from './ui/history';
+import { EditBanner } from './ui/editBanner';
 import { FlipCard } from './ui/flip';
 import { QuickAdd } from './ui/quickadd';
 
@@ -61,6 +62,7 @@ export class App {
     new QuickAdd(this.store, () => sheet.open());
     const onboarding = new Onboarding(this.store);
     new History(this.store, () => onboarding.close());
+    new EditBanner(this.store);
     new FlipCard();
     bindPressStates();
 

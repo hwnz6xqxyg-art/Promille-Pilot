@@ -6,14 +6,17 @@ import { simulate, type Profile } from '../engine';
 import type { CustomDrink, DrinkPreset } from '../data/presets';
 import {
   DrinkSession,
+  EditingState,
   StoredDrink,
   loadCustomDrinks,
   loadDrinks,
+  loadEditing,
   loadOnboarded,
   loadProfile,
   loadSessions,
   saveCustomDrinks,
   saveDrinks,
+  saveEditing,
   saveOnboarded,
   saveProfile,
   saveSessions,
@@ -36,6 +39,8 @@ export class Store {
   drinks: StoredDrink[];
   customDrinks: CustomDrink[];
   sessions: DrinkSession[];
+  /** Non-null while editing a reopened past evening; holds the stashed live evening. */
+  editing: EditingState | null;
   onboarded: boolean;
 
   /** transient UI state */
@@ -51,13 +56,20 @@ export class Store {
     this.drinks = loadDrinks();
     this.customDrinks = loadCustomDrinks();
     this.sessions = loadSessions();
+    this.editing = loadEditing();
     this.onboarded = loadOnboarded();
     this.profileOpen = !this.onboarded;
     // Auto-archive a finished evening: the last drink is ≥ 12 h old → it belongs
     // to history, and the current view starts fresh (replaces silent pruning).
-    if (this.drinks.length > 0 && now - Math.max(...this.drinks.map((d) => d.timestamp)) >= AUTO_CLOSE_MS) {
+    // Skipped while editing a past evening — its drinks are old by definition.
+    if (!this.editing && this.drinks.length > 0 && now - Math.max(...this.drinks.map((d) => d.timestamp)) >= AUTO_CLOSE_MS) {
       this.archiveCurrentDrinks(now, false);
     }
+  }
+
+  /** True while a reopened past evening is being edited (the live evening is stashed). */
+  get editingPast(): boolean {
+    return this.editing !== null;
   }
 
   onInvalidate(fn: () => void): void {
@@ -125,6 +137,10 @@ export class Store {
 
   /** Close the current evening into history and reset the log. No-op without drinks. */
   closeSession(now: number): void {
+    if (this.editing) {
+      this.finishEditing(now); // a reopened past evening is never re-archived as a new session
+      return;
+    }
     if (this.drinks.length === 0) return;
     this.archiveCurrentDrinks(now, true);
   }
@@ -136,19 +152,59 @@ export class Store {
   }
 
   /**
-   * Reopen an archived evening for editing: its drinks return to the current
-   * log (a non-empty current evening is archived first — nothing mixes, nothing
-   * is lost) and the session leaves the history until it's closed again.
+   * Reopen an archived evening for editing WITHOUT touching the live evening:
+   * the ongoing evening is stashed (never archived), the past evening becomes the
+   * editable log, and a banner marks that you're editing the past. finishEditing()
+   * writes the edits back to history and restores the stashed live evening intact.
    */
-  reopenSession(id: string, now: number): void {
+  reopenSession(id: string): void {
     const session = this.sessions.find((s) => s.id === id);
     if (!session) return;
-    if (this.drinks.length > 0) this.archiveCurrentDrinks(now, false);
+    // Preserve the LIVE evening across successive legacy edits; commit prior edits first.
+    const stash = this.editing ? this.editing.stash : this.drinks;
+    if (this.editing) this.commitEditing();
     this.sessions = this.sessions.filter((s) => s.id !== id);
+    this.editing = { session, stash };
     this.drinks = session.drinks;
+    saveEditing(this.editing);
     saveSessions(this.sessions);
     saveDrinks(this.drinks);
     this.invalidate();
+  }
+
+  /** Leave editing mode: save the edited past evening back to history, restore the live evening. */
+  finishEditing(now: number): void {
+    if (!this.editing) return;
+    this.commitEditing();
+    this.drinks = this.editing.stash;
+    this.editing = null;
+    saveEditing(null);
+    // The stashed evening may itself have gone stale while we were in the past
+    // (e.g. editing started at night, finished days later) — same 12 h rule as boot.
+    if (this.drinks.length > 0 && now - Math.max(...this.drinks.map((d) => d.timestamp)) >= AUTO_CLOSE_MS) {
+      this.archiveCurrentDrinks(now, true); // saves sessions + drinks + notifies
+      return;
+    }
+    saveSessions(this.sessions);
+    saveDrinks(this.drinks);
+    this.invalidate();
+  }
+
+  /** Rebuild the edited past evening back into `sessions` (dropped if emptied). No stash/log side effects. */
+  private commitEditing(): void {
+    const e = this.editing;
+    if (!e) return;
+    if (this.drinks.length > 0) {
+      const rebuilt: DrinkSession = {
+        id: e.session.id,
+        startedAt: Math.min(...this.drinks.map((d) => d.timestamp)),
+        endedAt: Math.max(...this.drinks.map((d) => d.timestamp)),
+        closedAt: e.session.closedAt,
+        peakBac: simulate(this.drinks, this.profile).peakBac,
+        drinks: this.drinks,
+      };
+      this.sessions = [rebuilt, ...this.sessions].slice(0, MAX_SESSIONS);
+    }
   }
 
   /** Shared close path — `notify` false during construction (no listeners yet). */
