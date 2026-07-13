@@ -96,13 +96,20 @@ export class Hero {
       : this.timeEl.classList.contains('pulse-b')
         ? 'pulse-b'
         : '';
+    // Severity classes are owned by App.applyDisplayed (same source as the ‰ pill);
+    // carry them across the wholesale className writes like the pulse classes.
+    const sevClass = this.timeEl.classList.contains('is-over')
+      ? 'is-over'
+      : this.timeEl.classList.contains('is-drinking')
+        ? 'is-drinking'
+        : '';
     if (heroRow.alreadyBelow) {
       setText(this.timeEl, 'Jetzt');
-      this.timeEl.className = `hero-time num is-now ${pulseClass}`;
+      this.timeEl.className = `hero-time num is-now ${sevClass} ${pulseClass}`;
       setText(this.subEl, `unter deinem Limit von ${fmtP(limit)} ‰ — Restalkohol bleibt ein Risiko.`);
     } else if (heroRow.time != null) {
       setText(this.timeEl, fmtClock(heroRow.time));
-      this.timeEl.className = `hero-time num is-set ${pulseClass}`;
+      this.timeEl.className = `hero-time num is-set ${sevClass} ${pulseClass}`;
       // "steigt noch": momentan unter dem Limit, aber die Kurve kreuzt es noch —
       // die Prognosezeit gilt erst nach dem kommenden Peak.
       const rising = heroRow.currentlyBelow ? 'steigt noch · ' : '';
@@ -112,6 +119,16 @@ export class Hero {
       this.timeEl.className = `hero-time num ${pulseClass}`;
       setText(this.subEl, `Limit ${fmtP(limit)} ‰`);
     }
+  }
+
+  /**
+   * Mirror the ‰ pill's severity onto the big time: red over the limit, orange
+   * while drinking below it. CSS scopes the colors to `.is-set`, so the green
+   * "Jetzt" and the empty "—" states keep their own colors.
+   */
+  setSeverity(over: boolean, drinking: boolean): void {
+    this.timeEl.classList.toggle('is-over', over);
+    this.timeEl.classList.toggle('is-drinking', !over && drinking);
   }
 
   /** Limit-cross pulse — alternates between two identical keyframes to retrigger. */

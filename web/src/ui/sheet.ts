@@ -27,10 +27,17 @@ export class Sheet {
   private firstRow: HTMLButtonElement | null = null;
   // The "create custom drink" view lives inside this same sheet (#sheet.is-creating).
   private create = new CreatePanel(this.store, () => this.showBrowse());
+  private openedAt = 0;
 
   constructor(private store: Store) {
     // FAB interaction (tap vs. long-press) is owned by QuickAdd, which calls open().
-    this.backdrop.addEventListener('click', () => this.close());
+    this.backdrop.addEventListener('click', () => {
+      // The sheet opens on pointerup; on touch the browser then synthesizes a click
+      // which re-hit-tests against the NOW-open backdrop and would instantly close
+      // the sheet again (ghost click). Swallow clicks trailing the opening tap.
+      if (performance.now() - this.openedAt < 300) return;
+      this.close();
+    });
     // − steps back in time (higher agoMin → "vor X min"),
     // + steps forward in time (lower agoMin → "jetzt" → "in X min").
     this.agoMinus.addEventListener('click', () => this.setAgo(this.store.agoMin + 15));
@@ -120,6 +127,7 @@ export class Sheet {
 
   open(): void {
     this.store.sheetOpen = true;
+    this.openedAt = performance.now();
     this.sheet.classList.remove('is-creating'); // always open on the browse view
     this.renderPresets();
     this.setAgo(0);

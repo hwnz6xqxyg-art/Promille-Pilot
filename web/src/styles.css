@@ -31,6 +31,9 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
+/* App-like tap behavior: quick successive taps (e.g. stepper "++") must never be
+   swallowed as a double-tap zoom. Pinch-zoom stays available (accessibility). */
+html { touch-action: manipulation; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -84,6 +87,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-2); }
 .hero-time { font-size: 56px; font-weight: 800; letter-spacing: -2px; line-height: 1.15; color: var(--text-4); }
 .hero-time.is-set { color: var(--text); }
+/* Forecast time mirrors the ‰ pill severity: orange while drinking below the limit, red above. */
+.hero-time.is-set.is-drinking { color: var(--orange); }
+.hero-time.is-set.is-over { color: var(--red); }
 .hero-time.is-now { color: var(--green); }
 .hero-sub { font-size: 14px; color: var(--text-2); margin-top: -2px; }
 .fc-toggle {
