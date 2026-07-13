@@ -1,12 +1,12 @@
 /**
  * Time pill / scrubber — drag maps 0.85 min per px (drag left = future),
- * range 0…+720 min with ×0.3 rubber band; tick strip moves 11 px per 15 min.
+ * range first-drink…+720 min with ×0.3 rubber band beyond either end;
+ * tick strip moves 11 px per 15 min.
  */
 import type { Store } from '../state/store';
 import { qs, setText } from '../lib/dom';
 import { fmtClock, fmtDur } from '../lib/format';
 
-const MIN = 0;
 const MAX = 720;
 
 export interface ScrubHooks {
@@ -15,8 +15,8 @@ export interface ScrubHooks {
   cancelShiftAnim(): void;
 }
 
-function rubber(raw: number): number {
-  if (raw < MIN) return MIN + (raw - MIN) * 0.3;
+function rubber(raw: number, lo: number): number {
+  if (raw < lo) return lo + (raw - lo) * 0.3;
   if (raw > MAX) return MAX + (raw - MAX) * 0.3;
   return raw;
 }
@@ -45,20 +45,31 @@ export class Scrubber {
     this.card.addEventListener('pointermove', (e) => {
       if (!this.drag) return;
       const raw = this.drag.s - (e.clientX - this.drag.x) * 0.85;
-      this.store.shiftMin = rubber(raw);
+      this.store.shiftMin = rubber(raw, this.lowerBound());
       this.hooks.onChange();
     });
     const release = () => {
       if (!this.drag) return;
       this.drag = null;
       const s = this.store.shiftMin;
-      const clamped = Math.max(MIN, Math.min(MAX, s));
+      const clamped = Math.max(this.lowerBound(), Math.min(MAX, s));
       if (Math.abs(clamped - s) > 0.01) this.hooks.springShiftTo(clamped);
     };
     this.card.addEventListener('pointerup', release);
     this.card.addEventListener('pointercancel', release);
 
     this.zurueck.addEventListener('click', () => this.hooks.springShiftTo(0));
+  }
+
+  /**
+   * Dynamic lower bound: scrub back to the evening's first drink (in minutes,
+   * negative), matching the chart drag; without drinks the strip stays at now.
+   */
+  private lowerBound(): number {
+    const drinks = this.store.drinks;
+    if (drinks.length === 0) return 0;
+    const first = Math.min(...drinks.map((d) => d.timestamp));
+    return Math.min(0, (first - Date.now()) / 60000);
   }
 
   /** Per-recompute update of label, tick position and "Zurück" visibility. */
