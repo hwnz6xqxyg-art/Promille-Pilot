@@ -23,10 +23,9 @@ export interface ScrubHooks {
 
 export class Scrubber {
   private card = qs<HTMLElement>('#scrubCard');
-  private label = qs<HTMLElement>('#pillLabel');
+  private label = qs<HTMLButtonElement>('#pillLabel');
   private strip = qs<HTMLElement>('#tickStrip');
-  private zurueck = qs<HTMLButtonElement>('#btnZurueck');
-  private drag: { x: number; s: number } | null = null;
+  private drag: { x: number; s: number; onPill: boolean; moved: boolean } | null = null;
 
   get dragging(): boolean {
     return this.drag !== null;
@@ -37,13 +36,21 @@ export class Scrubber {
     private hooks: ScrubHooks,
   ) {
     this.card.addEventListener('pointerdown', (e) => {
-      if (e.target === this.zurueck) return;
       this.card.setPointerCapture(e.pointerId);
-      this.drag = { x: e.clientX, s: this.store.shiftMin };
+      // Dragging can start anywhere, including on the pill; a motionless tap ON
+      // the pill acts as the reset (decided at release via `moved`/`onPill`).
+      this.drag = {
+        x: e.clientX,
+        s: this.store.shiftMin,
+        onPill: this.label === e.target || this.label.contains(e.target as Node),
+        moved: false,
+      };
       this.hooks.cancelShiftAnim();
     });
     this.card.addEventListener('pointermove', (e) => {
       if (!this.drag) return;
+      if (Math.abs(e.clientX - this.drag.x) > 4) this.drag.moved = true;
+      if (!this.drag.moved) return;
       let raw = this.drag.s - (e.clientX - this.drag.x) * 0.85;
       if (raw < 0) {
         const lo = this.lowerBound();
@@ -60,8 +67,14 @@ export class Scrubber {
       this.hooks.onChange();
     });
     const release = () => {
-      if (!this.drag) return;
+      const d = this.drag;
+      if (!d) return;
       this.drag = null;
+      // A motionless tap on the pill = jump home (the pill IS the Zurück now).
+      if (!d.moved && d.onPill) {
+        if (Math.abs(this.store.shiftMin) > 0.5) this.hooks.springShiftTo(0);
+        return;
+      }
       const s = this.store.shiftMin;
       // Past peeks are elastic: any negative position springs home to "Jetzt".
       const clamped = s < 0 ? 0 : Math.min(MAX, s);
@@ -69,8 +82,6 @@ export class Scrubber {
     };
     this.card.addEventListener('pointerup', release);
     this.card.addEventListener('pointercancel', release);
-
-    this.zurueck.addEventListener('click', () => this.hooks.springShiftTo(0));
   }
 
   /**
@@ -93,6 +104,7 @@ export class Scrubber {
     else label = `−${fmtDur(-sh * 60000)} · ${fmtClock(effectiveNow)}`;
     setText(this.label, label);
     this.strip.style.backgroundPosition = `${(-(sh * (11 / 15))).toFixed(1)}px 0px`;
-    this.zurueck.classList.toggle('is-visible', Math.abs(sh) > 0.5);
+    // Away from "Jetzt" the pill turns accent-blue — it doubles as the reset.
+    this.label.classList.toggle('is-active', Math.abs(sh) > 0.5);
   }
 }
