@@ -125,19 +125,52 @@
     </button>
   </div>
 
-  <!-- Add-drink sheet -->
+  <!-- Add-drink sheet — two views: browse the list, or create/edit a custom drink -->
   <div id="backdrop" class="backdrop"></div>
   <div id="sheet" class="sheet" role="dialog" aria-modal="true" aria-label="Getränk hinzufügen">
     <div class="sheet-handle" aria-hidden="true"></div>
-    <div class="sheet-head">
-      <div class="sheet-title">Getränk hinzufügen</div>
-      <div class="ago-stepper">
-        <button id="agoMinus" class="ago-btn" data-press="icon" aria-label="15 Minuten früher">−</button>
-        <div id="agoLabel" class="ago-label num">jetzt</div>
-        <button id="agoPlus" class="ago-btn" data-press="icon" aria-label="15 Minuten später">+</button>
+    <div class="sheet-view sheet-browse">
+      <div class="sheet-head">
+        <div class="sheet-title">Getränk hinzufügen</div>
+        <div class="ago-stepper">
+          <button id="agoMinus" class="ago-btn" data-press="icon" aria-label="15 Minuten früher">−</button>
+          <div id="agoLabel" class="ago-label num">jetzt</div>
+          <button id="agoPlus" class="ago-btn" data-press="icon" aria-label="15 Minuten später">+</button>
+        </div>
+      </div>
+      <div id="presetList" class="preset-list"></div>
+    </div>
+    <div class="sheet-view sheet-create">
+      <div class="create-head">
+        <button id="customBack" class="sheet-back" data-press="icon" type="button" aria-label="Zurück">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div id="customTitle" class="sheet-title">Eigenes Getränk</div>
+      </div>
+      <div id="customEmojiGrid" class="emoji-grid" role="radiogroup" aria-label="Symbol"></div>
+      <input id="customName" class="custom-input" type="text" maxlength="24" enterkeyhint="done"
+             autocomplete="off" autocapitalize="words" aria-label="Name" placeholder="Name (z. B. Espresso Martini)">
+      <div class="edit-row">
+        <span class="edit-label">Menge</span>
+        <div class="ago-stepper">
+          <button id="customVolMinus" class="ago-btn" data-press="icon" aria-label="50 Milliliter weniger">−</button>
+          <div id="customVolLabel" class="ago-label num">–</div>
+          <button id="customVolPlus" class="ago-btn" data-press="icon" aria-label="50 Milliliter mehr">+</button>
+        </div>
+      </div>
+      <div class="edit-row">
+        <span class="edit-label">Stärke</span>
+        <div class="ago-stepper">
+          <button id="customAbvMinus" class="ago-btn" data-press="icon" aria-label="0,5 Prozent weniger">−</button>
+          <div id="customAbvLabel" class="ago-label num">–</div>
+          <button id="customAbvPlus" class="ago-btn" data-press="icon" aria-label="0,5 Prozent mehr">+</button>
+        </div>
+      </div>
+      <div class="edit-actions">
+        <button id="customDelete" class="confirm-btn is-danger" type="button" hidden>Löschen</button>
+        <button id="customSave" class="confirm-btn is-primary" type="button">Speichern</button>
       </div>
     </div>
-    <div id="presetList" class="preset-list"></div>
   </div>
 
   <!-- Edit-drink sheet -->
@@ -174,38 +207,6 @@
     <div class="edit-actions">
       <button id="editDelete" class="confirm-btn is-danger" type="button">Löschen</button>
       <button id="editDone" class="confirm-btn is-primary" type="button">Fertig</button>
-    </div>
-  </div>
-
-  <!-- Create/edit a custom drink -->
-  <div id="customBackdrop" class="backdrop"></div>
-  <div id="customSheet" class="sheet custom-sheet" role="dialog" aria-modal="true" aria-labelledby="customTitle">
-    <div class="sheet-handle" aria-hidden="true"></div>
-    <div class="sheet-head">
-      <div id="customTitle" class="sheet-title">Eigenes Getränk</div>
-    </div>
-    <div id="customEmojiGrid" class="emoji-grid" role="radiogroup" aria-label="Symbol"></div>
-    <input id="customName" class="custom-input" type="text" maxlength="24" enterkeyhint="done"
-           autocomplete="off" autocapitalize="words" aria-label="Name" placeholder="Name (z. B. Espresso Martini)">
-    <div class="edit-row">
-      <span class="edit-label">Menge</span>
-      <div class="ago-stepper">
-        <button id="customVolMinus" class="ago-btn" data-press="icon" aria-label="50 Milliliter weniger">−</button>
-        <div id="customVolLabel" class="ago-label num">–</div>
-        <button id="customVolPlus" class="ago-btn" data-press="icon" aria-label="50 Milliliter mehr">+</button>
-      </div>
-    </div>
-    <div class="edit-row">
-      <span class="edit-label">Stärke</span>
-      <div class="ago-stepper">
-        <button id="customAbvMinus" class="ago-btn" data-press="icon" aria-label="0,5 Prozent weniger">−</button>
-        <div id="customAbvLabel" class="ago-label num">–</div>
-        <button id="customAbvPlus" class="ago-btn" data-press="icon" aria-label="0,5 Prozent mehr">+</button>
-      </div>
-    </div>
-    <div class="edit-actions">
-      <button id="customDelete" class="confirm-btn is-danger" type="button" hidden>Löschen</button>
-      <button id="customSave" class="confirm-btn is-primary" type="button">Speichern</button>
     </div>
   </div>
 

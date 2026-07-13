@@ -7,7 +7,7 @@ import { PRESETS } from '../data/presets';
 import type { Store } from '../state/store';
 import { el, qs, setText } from '../lib/dom';
 import { attachSwipeToDismiss } from './sheetSwipe';
-import type { CustomMode } from './customform';
+import { CreatePanel, type CustomMode } from './customform';
 
 const EDIT_ICON =
   '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(60,60,67,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
@@ -25,11 +25,10 @@ export class Sheet {
   private agoPlus = qs<HTMLButtonElement>('#agoPlus');
   private presetList = qs<HTMLElement>('#presetList');
   private firstRow: HTMLButtonElement | null = null;
+  // The "create custom drink" view lives inside this same sheet (#sheet.is-creating).
+  private create = new CreatePanel(this.store, () => this.showBrowse());
 
-  constructor(
-    private store: Store,
-    private openCustom: (mode: CustomMode, id?: string) => void,
-  ) {
+  constructor(private store: Store) {
     // FAB interaction (tap vs. long-press) is owned by QuickAdd, which calls open().
     this.backdrop.addEventListener('click', () => this.close());
     // − steps back in time (higher agoMin → "vor X min"),
@@ -85,7 +84,7 @@ export class Sheet {
         edit.setAttribute('aria-label', `Bearbeiten: ${c.name}`);
         edit.dataset.press = 'icon';
         edit.innerHTML = EDIT_ICON;
-        edit.addEventListener('click', () => this.openCustom('edit', c.id));
+        edit.addEventListener('click', () => this.showCreate('edit', c.id));
         row.appendChild(edit);
         list.appendChild(row);
       }
@@ -93,8 +92,22 @@ export class Sheet {
 
     const create = el('button', 'preset-row preset-create');
     create.innerHTML = '<span class="preset-create-plus">＋</span>Eigenes Getränk';
-    create.addEventListener('click', () => this.openCustom('create'));
+    create.addEventListener('click', () => this.showCreate('create'));
     list.appendChild(create);
+  }
+
+  /** Swap this sheet to the create/edit form view. */
+  showCreate(mode: CustomMode, id?: string): void {
+    this.create.load(mode, id);
+    this.sheet.classList.add('is-creating');
+    this.create.focusName();
+  }
+
+  /** Swap back to the drink-list view (also refreshes it after a custom change). */
+  showBrowse(): void {
+    this.sheet.classList.remove('is-creating');
+    this.renderPresets();
+    this.firstRow?.focus({ preventScroll: true });
   }
 
   private setAgo(v: number): void {
@@ -107,6 +120,7 @@ export class Sheet {
 
   open(): void {
     this.store.sheetOpen = true;
+    this.sheet.classList.remove('is-creating'); // always open on the browse view
     this.renderPresets();
     this.setAgo(0);
     this.sheet.classList.add('is-open');
@@ -116,7 +130,7 @@ export class Sheet {
 
   close(): void {
     this.store.sheetOpen = false;
-    this.sheet.classList.remove('is-open');
+    this.sheet.classList.remove('is-open', 'is-creating'); // reset view for next open
     this.backdrop.classList.remove('is-open');
     this.fab.focus({ preventScroll: true });
   }
