@@ -139,10 +139,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
 }
 .scrub-head { display: flex; align-items: baseline; justify-content: space-between; }
-.pill-label { font-size: 14px; font-weight: 700; }
-.link-btn { font-size: 12px; font-weight: 600; color: var(--accent); opacity: 0; transition: opacity 0.3s; pointer-events: none; padding: 4px; margin: -4px; }
-.link-btn.is-visible { opacity: 1; pointer-events: auto; }
-.link-btn.danger { color: var(--red); opacity: 1; pointer-events: auto; }
+/* The pill doubles as the reset: it turns accent-blue while scrubbed away from
+   "Jetzt" and a tap on it springs home (replaces the old "Zurück" link, which
+   could hide behind the + FAB). */
+.pill-label { font-size: 14px; font-weight: 700; transition: color 0.25s; }
+.pill-label.is-active { color: var(--accent); }
 .tick-wrap { position: relative; margin-top: 9px; height: 18px; overflow: hidden; border-radius: 3px; }
 .tick-strip {
   position: absolute; inset: 0;
