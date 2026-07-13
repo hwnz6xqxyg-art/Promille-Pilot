@@ -31,6 +31,11 @@ export function fmtClock(ms: number): string {
   return new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 }
 
+/** "Sa., 12.07." — weekday + short date for the session history. */
+export function fmtDate(ms: number): string {
+  return new Date(ms).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+}
+
 /** "45 min" / "2 h" / "2 h 10 min" (clamped at 0). */
 export function fmtDur(ms: number): string {
   const m = Math.round(Math.max(0, ms) / 60000);
