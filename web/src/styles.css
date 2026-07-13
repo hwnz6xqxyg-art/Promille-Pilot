@@ -138,7 +138,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border-top: 0.5px solid var(--hairline);
   touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
 }
-.scrub-head { display: flex; align-items: baseline; justify-content: space-between; }
+/* 1fr | pill | 1fr keeps the pill dead-center now that Zurück is gone. */
+.scrub-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; }
 /* The pill doubles as the reset: it turns accent-blue while scrubbed away from
    "Jetzt" and a tap on it springs home (replaces the old "Zurück" link, which
    could hide behind the + FAB). */
