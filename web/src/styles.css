@@ -41,7 +41,9 @@ body {
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
 }
-button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+/* touch-action ON the button itself: iOS Safari doesn't reliably consult ancestor
+   values for double-tap zoom, so rapid taps (steppers, swipe blobs) must carry it. */
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .num { font-variant-numeric: tabular-nums; }
 [hidden] { display: none !important; }
 
@@ -389,8 +391,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .custom-input {
   width: 100%; box-sizing: border-box; padding: 11px 14px; margin-bottom: 12px;
   border-radius: 12px; background: #fff; border: 1px solid var(--hairline);
-  font: inherit; font-size: 15px; color: #1c1c1e; appearance: none;
-  touch-action: auto; /* opt back in inside the touch-action:none sheet so the caret works */
+  font: inherit; font-size: 16px; color: #1c1c1e; appearance: none; /* ≥16px: no iOS focus auto-zoom */
+  touch-action: manipulation; /* taps/caret work inside the touch-action:none sheet; no double-tap zoom */
 }
 .custom-input::placeholder { color: var(--text-2); }
 .custom-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15); }
