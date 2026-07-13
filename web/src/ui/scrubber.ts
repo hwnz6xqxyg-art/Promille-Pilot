@@ -1,7 +1,8 @@
 /**
- * Time pill / scrubber — drag maps 0.85 min per px (drag left = future),
- * range first-drink…+720 min with ×0.3 rubber band beyond either end;
- * tick strip moves 11 px per 15 min.
+ * Time pill / scrubber — drag maps 0.85 min per px (drag left = future).
+ * Future: 0…+720 min, holds on release (planning tool). Past: an ELASTIC PEEK —
+ * 1:1 back to the evening's first drink, ×0.3 rubber beyond it, and on release
+ * it always springs home to "Jetzt". Tick strip moves 11 px per 15 min.
  */
 import type { Store } from '../state/store';
 import { qs, setText } from '../lib/dom';
@@ -52,7 +53,8 @@ export class Scrubber {
       if (!this.drag) return;
       this.drag = null;
       const s = this.store.shiftMin;
-      const clamped = Math.max(this.lowerBound(), Math.min(MAX, s));
+      // Past peeks are elastic: any negative position springs home to "Jetzt".
+      const clamped = s < 0 ? 0 : Math.min(MAX, s);
       if (Math.abs(clamped - s) > 0.01) this.hooks.springShiftTo(clamped);
     };
     this.card.addEventListener('pointerup', release);
