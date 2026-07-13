@@ -16,10 +16,25 @@ export interface StoredDrink {
   e: string;
 }
 
+/** A closed evening: its drinks plus a summary frozen at close time. */
+export interface DrinkSession {
+  id: string;
+  startedAt: number;
+  endedAt: number;
+  closedAt: number;
+  /** Peak ‰ computed with the profile at close time — later profile edits don't rewrite history. */
+  peakBac: number;
+  drinks: StoredDrink[];
+}
+
 const KEY_PROFILE = 'pp.web.v1.profile';
 const KEY_DRINKS = 'pp.web.v1.drinks';
 const KEY_ONBOARDED = 'pp.web.v1.onboarded';
 const KEY_CUSTOM = 'pp.web.v1.customDrinks';
+const KEY_SESSIONS = 'pp.web.v1.sessions';
+
+/** History cap — newest first; the oldest evenings fall off. */
+const MAX_SESSIONS = 30;
 
 /** Drinks older than this are pruned on load ("Heute Abend" framing, bounded storage). */
 const MAX_DRINK_AGE_MS = 48 * 3600 * 1000;
@@ -138,6 +153,67 @@ export function loadCustomDrinks(): CustomDrink[] {
 
 export function saveCustomDrinks(drinks: CustomDrink[]): void {
   write(KEY_CUSTOM, drinks);
+}
+
+/** Same shape checks as loadDrinks, but WITHOUT the age prune — history keeps old drinks. */
+function sanitizeSessionDrink(x: unknown): StoredDrink | null {
+  const d = x as StoredDrink;
+  if (
+    !d ||
+    typeof d !== 'object' ||
+    typeof d.id !== 'string' ||
+    typeof d.timestamp !== 'number' ||
+    !isFinite(d.timestamp) ||
+    typeof d.volumeMl !== 'number' ||
+    !(d.volumeMl > 0) ||
+    typeof d.abvPercent !== 'number' ||
+    !(d.abvPercent > 0)
+  ) {
+    return null;
+  }
+  return {
+    id: d.id,
+    timestamp: d.timestamp,
+    volumeMl: d.volumeMl,
+    abvPercent: d.abvPercent,
+    label: typeof d.label === 'string' ? d.label : 'Getränk',
+    detail: typeof d.detail === 'string' ? d.detail : '',
+    e: typeof d.e === 'string' ? d.e : '🥤',
+  };
+}
+
+export function loadSessions(): DrinkSession[] {
+  const arr = read(KEY_SESSIONS);
+  if (!Array.isArray(arr)) return [];
+  const out: DrinkSession[] = [];
+  for (const x of arr) {
+    const s = x as DrinkSession;
+    if (
+      !s ||
+      typeof s !== 'object' ||
+      typeof s.id !== 'string' ||
+      typeof s.startedAt !== 'number' ||
+      !isFinite(s.startedAt) ||
+      typeof s.endedAt !== 'number' ||
+      !isFinite(s.endedAt) ||
+      typeof s.closedAt !== 'number' ||
+      !isFinite(s.closedAt) ||
+      typeof s.peakBac !== 'number' ||
+      !isFinite(s.peakBac) ||
+      !Array.isArray(s.drinks)
+    ) {
+      continue;
+    }
+    const drinks = s.drinks.map(sanitizeSessionDrink).filter((d): d is StoredDrink => d !== null);
+    if (drinks.length === 0) continue;
+    out.push({ id: s.id, startedAt: s.startedAt, endedAt: s.endedAt, closedAt: s.closedAt, peakBac: s.peakBac, drinks });
+    if (out.length >= MAX_SESSIONS) break;
+  }
+  return out;
+}
+
+export function saveSessions(sessions: DrinkSession[]): void {
+  write(KEY_SESSIONS, sessions.slice(0, MAX_SESSIONS));
 }
 
 export function loadOnboarded(): boolean {

@@ -10,6 +10,7 @@ export class Drinks {
   private list = qs<HTMLElement>('#drinkList');
   private empty = qs<HTMLElement>('#drinkEmpty');
   private clearBtn = qs<HTMLButtonElement>('#btnClearAll');
+  private closeSessionBtn = qs<HTMLButtonElement>('#btnCloseSession');
   private confirmBackdrop = qs<HTMLElement>('#confirmBackdrop');
   private confirmDialog = qs<HTMLElement>('#confirmDialog');
   private confirmText = qs<HTMLElement>('#confirmText');
@@ -21,6 +22,8 @@ export class Drinks {
     private store: Store,
     private onEdit: (id: string) => void,
   ) {
+    // Closing the evening is non-destructive (it moves to history) → no confirm.
+    this.closeSessionBtn.addEventListener('click', () => this.store.closeSession(Date.now()));
     // "Alle löschen" is destructive → confirm before clearing.
     this.clearBtn.addEventListener('click', () => this.openConfirm());
     this.confirmCancel.addEventListener('click', () => this.closeConfirm());
@@ -56,6 +59,7 @@ export class Drinks {
     const drinks = this.store.drinks.slice().sort((a, b) => b.timestamp - a.timestamp);
     this.empty.hidden = drinks.length > 0;
     this.clearBtn.hidden = drinks.length === 0;
+    this.closeSessionBtn.hidden = drinks.length === 0;
     this.list.textContent = '';
 
     const currentIds = new Set<string>();

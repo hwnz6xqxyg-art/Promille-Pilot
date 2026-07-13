@@ -98,6 +98,7 @@
         </div>
         <div id="drinkEmpty" class="drinks-empty">Noch keine Getränke — unten rechts hinzufügen.</div>
         <div id="drinkList" class="drink-list"></div>
+        <button id="btnCloseSession" class="close-session" type="button" hidden>Abend abschließen</button>
         <button id="btnClearAll" class="clear-all" type="button" hidden>Alle löschen</button>
       </div><!-- /flip-back -->
       </div><!-- /flip-inner -->
@@ -287,6 +288,14 @@
           <button id="noviceSwitch" class="pp-switch" role="switch" aria-checked="false" aria-label="Fahranfänger / unter 21">
             <div class="pp-switch-knob"></div>
           </button>
+        </div>
+      </div>
+
+      <div class="card profile-card">
+        <div>
+          <div class="control-label">Vergangene Abende</div>
+          <div id="historyEmpty" class="history-empty">Noch keine abgeschlossenen Abende.</div>
+          <div id="historyList" class="history-list"></div>
         </div>
       </div>
 

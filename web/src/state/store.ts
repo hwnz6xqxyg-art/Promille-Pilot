@@ -2,19 +2,26 @@
  * App state + mutations. BAC is never stored — always derived from drinks + profile.
  * Mutations persist synchronously and notify the app loop via onInvalidate.
  */
-import type { Profile } from '../engine';
+import { simulate, type Profile } from '../engine';
 import type { CustomDrink, DrinkPreset } from '../data/presets';
 import {
+  DrinkSession,
   StoredDrink,
   loadCustomDrinks,
   loadDrinks,
   loadOnboarded,
   loadProfile,
+  loadSessions,
   saveCustomDrinks,
   saveDrinks,
   saveOnboarded,
   saveProfile,
+  saveSessions,
 } from './persistence';
+
+/** A finished evening auto-archives once the newest drink is this old. */
+const AUTO_CLOSE_MS = 12 * 3600 * 1000;
+const MAX_SESSIONS = 30;
 
 function newId(): string {
   try {
@@ -28,6 +35,7 @@ export class Store {
   profile: Profile;
   drinks: StoredDrink[];
   customDrinks: CustomDrink[];
+  sessions: DrinkSession[];
   onboarded: boolean;
 
   /** transient UI state */
@@ -42,8 +50,14 @@ export class Store {
     this.profile = loadProfile();
     this.drinks = loadDrinks(now);
     this.customDrinks = loadCustomDrinks();
+    this.sessions = loadSessions();
     this.onboarded = loadOnboarded();
     this.profileOpen = !this.onboarded;
+    // Auto-archive a finished evening: the last drink is ≥ 12 h old → it belongs
+    // to history, and the current view starts fresh (replaces silent pruning).
+    if (this.drinks.length > 0 && now - Math.max(...this.drinks.map((d) => d.timestamp)) >= AUTO_CLOSE_MS) {
+      this.archiveCurrentDrinks(now, false);
+    }
   }
 
   onInvalidate(fn: () => void): void {
@@ -107,6 +121,36 @@ export class Store {
     this.customDrinks = this.customDrinks.filter((d) => d.id !== id);
     saveCustomDrinks(this.customDrinks);
     this.invalidate();
+  }
+
+  /** Close the current evening into history and reset the log. No-op without drinks. */
+  closeSession(now: number): void {
+    if (this.drinks.length === 0) return;
+    this.archiveCurrentDrinks(now, true);
+  }
+
+  removeSession(id: string): void {
+    this.sessions = this.sessions.filter((s) => s.id !== id);
+    saveSessions(this.sessions);
+    this.invalidate();
+  }
+
+  /** Shared close path — `notify` false during construction (no listeners yet). */
+  private archiveCurrentDrinks(now: number, notify: boolean): void {
+    const drinks = this.drinks;
+    const session: DrinkSession = {
+      id: newId(),
+      startedAt: Math.min(...drinks.map((d) => d.timestamp)),
+      endedAt: Math.max(...drinks.map((d) => d.timestamp)),
+      closedAt: now,
+      peakBac: simulate(drinks, this.profile).peakBac,
+      drinks,
+    };
+    this.sessions = [session, ...this.sessions].slice(0, MAX_SESSIONS);
+    this.drinks = [];
+    saveSessions(this.sessions);
+    saveDrinks(this.drinks);
+    if (notify) this.invalidate();
   }
 
   // Note: targetLimitPromille keeps the user's choice even while isNovice is on —
