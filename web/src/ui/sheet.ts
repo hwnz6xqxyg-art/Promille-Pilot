@@ -6,6 +6,7 @@
 import { PRESETS } from '../data/presets';
 import type { Store } from '../state/store';
 import { el, qs, setText } from '../lib/dom';
+import { fmtDur } from '../lib/format';
 import { attachSwipeToDismiss } from './sheetSwipe';
 import { CreatePanel, type CustomMode } from './customform';
 
@@ -120,7 +121,7 @@ export class Sheet {
   private setAgo(v: number): void {
     const m = Math.max(-FUTURE_MAX_MIN, Math.min(PAST_MAX_MIN, v));
     this.store.agoMin = m;
-    setText(this.agoLabel, m === 0 ? 'jetzt' : m > 0 ? `vor ${m} min` : `in ${-m} min`);
+    setText(this.agoLabel, m === 0 ? 'jetzt' : m > 0 ? `vor ${fmtDur(m * 60000)}` : `in ${fmtDur(-m * 60000)}`);
     this.agoMinus.disabled = m === PAST_MAX_MIN;
     this.agoPlus.disabled = m === -FUTURE_MAX_MIN;
   }
