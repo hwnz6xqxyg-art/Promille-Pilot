@@ -59,8 +59,8 @@ export class App {
     this.drinks = new Drinks(this.store, (id) => editor.open(id));
     const sheet = new Sheet(this.store);
     new QuickAdd(this.store, () => sheet.open());
-    new Onboarding(this.store);
-    new History(this.store);
+    const onboarding = new Onboarding(this.store);
+    new History(this.store, () => onboarding.close());
     new FlipCard();
     bindPressStates();
 

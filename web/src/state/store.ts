@@ -48,7 +48,7 @@ export class Store {
 
   constructor(now: number) {
     this.profile = loadProfile();
-    this.drinks = loadDrinks(now);
+    this.drinks = loadDrinks();
     this.customDrinks = loadCustomDrinks();
     this.sessions = loadSessions();
     this.onboarded = loadOnboarded();
@@ -132,6 +132,22 @@ export class Store {
   removeSession(id: string): void {
     this.sessions = this.sessions.filter((s) => s.id !== id);
     saveSessions(this.sessions);
+    this.invalidate();
+  }
+
+  /**
+   * Reopen an archived evening for editing: its drinks return to the current
+   * log (a non-empty current evening is archived first — nothing mixes, nothing
+   * is lost) and the session leaves the history until it's closed again.
+   */
+  reopenSession(id: string, now: number): void {
+    const session = this.sessions.find((s) => s.id === id);
+    if (!session) return;
+    if (this.drinks.length > 0) this.archiveCurrentDrinks(now, false);
+    this.sessions = this.sessions.filter((s) => s.id !== id);
+    this.drinks = session.drinks;
+    saveSessions(this.sessions);
+    saveDrinks(this.drinks);
     this.invalidate();
   }
 
