@@ -31,9 +31,13 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
-/* App-like tap behavior: quick successive taps (e.g. stepper "++") must never be
-   swallowed as a double-tap zoom. Pinch-zoom stays available (accessibility). */
-html { touch-action: manipulation; }
+/* App-like tap behavior: no double-tap zoom ANYWHERE — iOS Safari only reliably
+   honors touch-action on the touched element itself, so every element carries it
+   (universal selector loses to the class-level none/pan-y overrides on the drag
+   surfaces: sheet, chart, sliders, scrub strip, FAB, row content). Vertical page
+   scrolling stays available (manipulation includes pan); pinch-zoom stays
+   available (accessibility). */
+* { touch-action: manipulation; }
 body {
   background: var(--bg);
   color: var(--text);
