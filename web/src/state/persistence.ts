@@ -32,6 +32,13 @@ const KEY_DRINKS = 'pp.web.v1.drinks';
 const KEY_ONBOARDED = 'pp.web.v1.onboarded';
 const KEY_CUSTOM = 'pp.web.v1.customDrinks';
 const KEY_SESSIONS = 'pp.web.v1.sessions';
+const KEY_EDITING = 'pp.web.v1.editing';
+
+/** An archived evening reopened for editing, with the live evening set aside. */
+export interface EditingState {
+  session: DrinkSession;
+  stash: StoredDrink[];
+}
 
 /** History cap — newest first; the oldest evenings fall off. */
 const MAX_SESSIONS = 30;
@@ -182,31 +189,36 @@ function sanitizeSessionDrink(x: unknown): StoredDrink | null {
   };
 }
 
+function sanitizeSession(x: unknown): DrinkSession | null {
+  const s = x as DrinkSession;
+  if (
+    !s ||
+    typeof s !== 'object' ||
+    typeof s.id !== 'string' ||
+    typeof s.startedAt !== 'number' ||
+    !isFinite(s.startedAt) ||
+    typeof s.endedAt !== 'number' ||
+    !isFinite(s.endedAt) ||
+    typeof s.closedAt !== 'number' ||
+    !isFinite(s.closedAt) ||
+    typeof s.peakBac !== 'number' ||
+    !isFinite(s.peakBac) ||
+    !Array.isArray(s.drinks)
+  ) {
+    return null;
+  }
+  const drinks = s.drinks.map(sanitizeSessionDrink).filter((d): d is StoredDrink => d !== null);
+  if (drinks.length === 0) return null;
+  return { id: s.id, startedAt: s.startedAt, endedAt: s.endedAt, closedAt: s.closedAt, peakBac: s.peakBac, drinks };
+}
+
 export function loadSessions(): DrinkSession[] {
   const arr = read(KEY_SESSIONS);
   if (!Array.isArray(arr)) return [];
   const out: DrinkSession[] = [];
   for (const x of arr) {
-    const s = x as DrinkSession;
-    if (
-      !s ||
-      typeof s !== 'object' ||
-      typeof s.id !== 'string' ||
-      typeof s.startedAt !== 'number' ||
-      !isFinite(s.startedAt) ||
-      typeof s.endedAt !== 'number' ||
-      !isFinite(s.endedAt) ||
-      typeof s.closedAt !== 'number' ||
-      !isFinite(s.closedAt) ||
-      typeof s.peakBac !== 'number' ||
-      !isFinite(s.peakBac) ||
-      !Array.isArray(s.drinks)
-    ) {
-      continue;
-    }
-    const drinks = s.drinks.map(sanitizeSessionDrink).filter((d): d is StoredDrink => d !== null);
-    if (drinks.length === 0) continue;
-    out.push({ id: s.id, startedAt: s.startedAt, endedAt: s.endedAt, closedAt: s.closedAt, peakBac: s.peakBac, drinks });
+    const s = sanitizeSession(x);
+    if (s) out.push(s);
     if (out.length >= MAX_SESSIONS) break;
   }
   return out;
@@ -214,6 +226,27 @@ export function loadSessions(): DrinkSession[] {
 
 export function saveSessions(sessions: DrinkSession[]): void {
   write(KEY_SESSIONS, sessions.slice(0, MAX_SESSIONS));
+}
+
+export function loadEditing(): EditingState | null {
+  const v = read(KEY_EDITING) as EditingState | null;
+  if (!v || typeof v !== 'object') return null;
+  const session = sanitizeSession(v.session);
+  if (!session || !Array.isArray(v.stash)) return null;
+  const stash = v.stash.map(sanitizeSessionDrink).filter((d): d is StoredDrink => d !== null);
+  return { session, stash };
+}
+
+export function saveEditing(v: EditingState | null): void {
+  if (v === null) {
+    try {
+      localStorage.removeItem(KEY_EDITING);
+    } catch {
+      // ignore
+    }
+    return;
+  }
+  write(KEY_EDITING, v);
 }
 
 export function loadOnboarded(): boolean {

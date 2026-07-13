@@ -42,7 +42,7 @@ export class History {
       edit.addEventListener('click', () => {
         // Reopen into the current log (a non-empty current evening archives first);
         // close the profile so the user lands on the editable evening.
-        this.store.reopenSession(s.id, Date.now());
+        this.store.reopenSession(s.id);
         this.onReopen();
       });
       const del = el('button', 'row-act is-delete history-delete');

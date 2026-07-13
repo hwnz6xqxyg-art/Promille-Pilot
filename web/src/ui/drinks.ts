@@ -60,8 +60,11 @@ export class Drinks {
   render(animateNew = true): void {
     const drinks = this.store.drinks.slice().sort((a, b) => b.timestamp - a.timestamp);
     this.empty.hidden = drinks.length > 0;
-    this.clearBtn.hidden = drinks.length === 0;
-    this.closeSessionBtn.hidden = drinks.length === 0;
+    // While editing a past evening, closing/clearing make no sense — leave via the
+    // banner's "Fertig"; individual drinks are still editable/removable inline.
+    const editing = this.store.editingPast;
+    this.clearBtn.hidden = drinks.length === 0 || editing;
+    this.closeSessionBtn.hidden = drinks.length === 0 || editing;
     this.list.textContent = '';
 
     const currentIds = new Set<string>();
