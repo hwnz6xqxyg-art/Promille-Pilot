@@ -15,7 +15,10 @@ export class History {
   private armedId: string | null = null;
   private armTimer: number | null = null;
 
-  constructor(private store: Store) {
+  constructor(
+    private store: Store,
+    private onReopen: () => void,
+  ) {
     this.store.onInvalidate(() => this.render());
     this.render();
   }
@@ -29,7 +32,8 @@ export class History {
   }
 
   render(): void {
-    const sessions = this.store.sessions;
+    // Chronological history (a reopened + re-closed evening keeps its place).
+    const sessions = this.store.sessions.slice().sort((a, b) => b.startedAt - a.startedAt);
     this.empty.hidden = sessions.length > 0;
     this.list.textContent = '';
     // Sessions no longer present can't stay expanded/armed.
@@ -70,6 +74,17 @@ export class History {
           dr.appendChild(el('span', 'history-drink-time num', fmtClock(d.timestamp)));
           details.appendChild(dr);
         }
+        const actions = el('div', 'history-actions');
+        const edit = el('button', 'history-edit');
+        setText(edit, 'Abend bearbeiten');
+        edit.addEventListener('click', () => {
+          // Reopen into the current log (a non-empty current evening archives first);
+          // close the profile so the user lands on the editable evening.
+          this.disarm();
+          this.store.reopenSession(s.id, Date.now());
+          this.onReopen();
+        });
+        actions.appendChild(edit);
         const del = el('button', 'history-delete');
         if (this.armedId === s.id) {
           del.classList.add('is-armed');
@@ -91,7 +106,8 @@ export class History {
             this.render();
           });
         }
-        details.appendChild(del);
+        actions.appendChild(del);
+        details.appendChild(actions);
         row.appendChild(details);
       }
 

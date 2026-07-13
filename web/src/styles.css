@@ -382,7 +382,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .history-drink-label { font-weight: 600; }
 .history-drink-detail { flex: 1; color: var(--text-2); font-size: 12px; }
 .history-drink-time { color: var(--text-2); font-size: 12px; }
-.history-delete { display: block; margin: 6px auto 0; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--red); border-radius: 10px; }
+.history-actions { display: flex; justify-content: center; gap: 14px; margin-top: 6px; }
+.history-edit { padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--accent); border-radius: 10px; }
+.history-delete { padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--red); border-radius: 10px; }
 .history-delete.is-armed { background: var(--red-bg); font-weight: 700; }
 
 /* ---- profile / onboarding cover ---- */

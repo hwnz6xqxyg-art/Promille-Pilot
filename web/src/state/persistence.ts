@@ -36,8 +36,9 @@ const KEY_SESSIONS = 'pp.web.v1.sessions';
 /** History cap — newest first; the oldest evenings fall off. */
 const MAX_SESSIONS = 30;
 
-/** Drinks older than this are pruned on load ("Heute Abend" framing, bounded storage). */
-const MAX_DRINK_AGE_MS = 48 * 3600 * 1000;
+// Note: drinks are NOT age-pruned anymore — the store's 12 h auto-archive moves
+// finished evenings into the session history instead (nothing silently vanishes,
+// and a reopened old evening survives reloads).
 
 export function defaultProfile(): Profile {
   return {
@@ -95,7 +96,7 @@ export function saveProfile(p: Profile): void {
   write(KEY_PROFILE, p);
 }
 
-export function loadDrinks(now: number): StoredDrink[] {
+export function loadDrinks(): StoredDrink[] {
   const arr = read(KEY_DRINKS);
   if (!Array.isArray(arr)) return [];
   return arr.filter(
@@ -108,8 +109,7 @@ export function loadDrinks(now: number): StoredDrink[] {
       typeof (x as StoredDrink).volumeMl === 'number' &&
       (x as StoredDrink).volumeMl > 0 &&
       typeof (x as StoredDrink).abvPercent === 'number' &&
-      (x as StoredDrink).abvPercent > 0 &&
-      now - (x as StoredDrink).timestamp < MAX_DRINK_AGE_MS,
+      (x as StoredDrink).abvPercent > 0,
   ).map((x) => ({
     id: x.id,
     timestamp: x.timestamp,
