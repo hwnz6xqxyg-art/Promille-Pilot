@@ -106,8 +106,9 @@ export class CreatePanel {
     this.syncSaveEnabled();
   }
 
-  focusName(): void {
-    this.nameInput.focus({ preventScroll: true });
+  /** Land focus on the back button — NOT the name field, so the keyboard doesn't pop up on open. */
+  focusStart(): void {
+    this.backBtn.focus({ preventScroll: true });
   }
 
   private save(): void {

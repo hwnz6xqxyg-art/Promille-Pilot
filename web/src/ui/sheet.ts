@@ -100,7 +100,7 @@ export class Sheet {
   showCreate(mode: CustomMode, id?: string): void {
     this.create.load(mode, id);
     this.sheet.classList.add('is-creating');
-    this.create.focusName();
+    this.create.focusStart(); // focus the back button, not the name input (no auto keyboard)
   }
 
   /** Swap back to the drink-list view (also refreshes it after a custom change). */
