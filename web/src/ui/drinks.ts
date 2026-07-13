@@ -1,10 +1,12 @@
 /**
  * Drinks card — newest first, row-in animation for freshly added rows,
- * 26 px remove buttons (enlarged tap area via CSS), "Alle löschen".
+ * Mail-style swipe actions (Bearbeiten | Löschen), "Abend abschließen",
+ * "Alle löschen".
  */
 import type { Store } from '../state/store';
 import { el, qs, setText } from '../lib/dom';
 import { fmtClock, fmtN1 } from '../lib/format';
+import { attachSwipeActions } from './rowSwipe';
 
 export class Drinks {
   private list = qs<HTMLElement>('#drinkList');
@@ -65,9 +67,22 @@ export class Drinks {
     const currentIds = new Set<string>();
     for (const d of drinks) {
       currentIds.add(d.id);
-      const row = el('div', 'drink-row');
+      const row = el('div', 'drink-row swipe-row');
       if (animateNew && !this.knownIds.has(d.id)) row.classList.add('is-new');
-      // Tapping the row (everything but the ✕) opens the editor.
+
+      // Mail-style actions revealed by swiping the row leftward.
+      const actions = el('div', 'row-actions');
+      const editBtn = el('button', 'row-act is-edit', 'Bearbeiten');
+      editBtn.setAttribute('aria-label', `Bearbeiten: ${d.label}, ${fmtClock(d.timestamp)}`);
+      editBtn.addEventListener('click', () => this.onEdit(d.id));
+      const delBtn = el('button', 'row-act is-delete', 'Löschen');
+      delBtn.setAttribute('aria-label', `Entfernen: ${d.label}, ${fmtClock(d.timestamp)}`);
+      delBtn.addEventListener('click', () => this.store.removeDrink(d.id));
+      actions.append(editBtn, delBtn);
+      row.appendChild(actions);
+
+      // Tapping the row still opens the editor (swipes are filtered out).
+      const content = el('div', 'row-content');
       const open = el('button', 'drink-open');
       open.setAttribute('aria-label', `Bearbeiten: ${d.label}, ${fmtClock(d.timestamp)}`);
       open.appendChild(el('div', 'drink-emoji', d.e));
@@ -77,14 +92,10 @@ export class Drinks {
       open.appendChild(info);
       open.appendChild(el('div', 'drink-time num', fmtClock(d.timestamp)));
       open.addEventListener('click', () => this.onEdit(d.id));
-      row.appendChild(open);
-      const remove = el('button', 'drink-remove');
-      remove.setAttribute('aria-label', `Entfernen: ${d.label}, ${fmtClock(d.timestamp)}`);
-      remove.dataset.press = 'icon';
-      remove.innerHTML =
-        '<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="rgba(60,60,67,0.6)" stroke-width="1.8" stroke-linecap="round"/></svg>';
-      remove.addEventListener('click', () => this.store.removeDrink(d.id));
-      row.appendChild(remove);
+      content.appendChild(open);
+      row.appendChild(content);
+
+      attachSwipeActions(row, content, actions);
       this.list.appendChild(row);
     }
     this.knownIds = currentIds;
