@@ -52,6 +52,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .header { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
 .title { font-size: 28px; font-weight: 800; letter-spacing: -0.6px; color: var(--on-bg); }
+.title.is-summary { font-size: 22px; } /* "3 Getränke · seit 21:44" fits a 390px viewport */
 .header-right { display: flex; gap: 8px; align-items: center; }
 
 .bac-pill {

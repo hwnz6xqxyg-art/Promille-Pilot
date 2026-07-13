@@ -11,7 +11,7 @@ import { Store } from './state/store';
 import { bacSpring, shiftSpring, SpringValue } from './lib/springs';
 import { bindPressStates, reducedMotion } from './lib/motion';
 import { qs, setText } from './lib/dom';
-import { fmtP } from './lib/format';
+import { fmtClock, fmtP } from './lib/format';
 import { Hero } from './ui/hero';
 import { Scrubber, type ScrubHooks } from './ui/scrubber';
 import { Chart } from './ui/chart';
@@ -35,6 +35,7 @@ export class App {
   private scrubber: Scrubber;
   private chart: Chart;
   private bacPill = qs<HTMLElement>('#bacPill');
+  private titleEl = qs<HTMLElement>('#title');
 
   constructor() {
     const scrubHooks: ScrubHooks = {
@@ -110,6 +111,22 @@ export class App {
     this.hero.update(forecasts, limit, now);
     this.scrubber.update(now);
     this.chart.update(now);
+    this.updateTitle();
+  }
+
+  /** Header title: live evening summary, or a time-of-day greeting when the log is empty. */
+  private updateTitle(): void {
+    const drinks = this.store.drinks;
+    let text: string;
+    if (drinks.length === 0) {
+      const h = new Date().getHours(); // real clock — greetings don't follow the scrubbed time
+      text = h >= 5 && h < 11 ? 'Guten Morgen' : h >= 11 && h < 18 ? 'Guten Tag' : 'Guten Abend';
+    } else {
+      const first = Math.min(...drinks.map((d) => d.timestamp));
+      text = `${drinks.length} ${drinks.length === 1 ? 'Getränk' : 'Getränke'} · seit ${fmtClock(first)}`;
+    }
+    setText(this.titleEl, text);
+    this.titleEl.classList.toggle('is-summary', drinks.length > 0);
   }
 
   /** Push the spring-displayed BAC into pill + detect limit crossings (pulse). */
