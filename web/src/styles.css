@@ -31,13 +31,14 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
-/* App-like tap behavior: no double-tap zoom ANYWHERE — iOS Safari only reliably
-   honors touch-action on the touched element itself, so every element carries it
-   (universal selector loses to the class-level none/pan-y overrides on the drag
-   surfaces: sheet, chart, sliders, scrub strip, FAB, row content). Vertical page
-   scrolling stays available (manipulation includes pan); pinch-zoom stays
-   available (accessibility). */
-* { touch-action: manipulation; }
+/* App-like touch behavior: NO in-page zoom of any kind, anywhere. `manipulation`
+   proved insufficient — it still permits pinch-zoom, and iOS's one-finger zoom
+   (double-tap-and-drag, easily triggered by rapid scrub strokes) rides that
+   class. `pan-y` allows only vertical scrolling: double-tap zoom, drag-zoom and
+   in-page pinch are all excluded on every element (iOS honors it only on the
+   touched element itself, hence universal). Drag surfaces override with `none`
+   by class specificity. System accessibility zoom is unaffected. */
+* { touch-action: pan-y; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -45,9 +46,7 @@ body {
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
 }
-/* touch-action ON the button itself: iOS Safari doesn't reliably consult ancestor
-   values for double-tap zoom, so rapid taps (steppers, swipe blobs) must carry it. */
-button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .num { font-variant-numeric: tabular-nums; }
 [hidden] { display: none !important; }
 
@@ -396,7 +395,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   width: 100%; box-sizing: border-box; padding: 11px 14px; margin-bottom: 12px;
   border-radius: 12px; background: #fff; border: 1px solid var(--hairline);
   font: inherit; font-size: 16px; color: #1c1c1e; appearance: none; /* ≥16px: no iOS focus auto-zoom */
-  touch-action: manipulation; /* taps/caret work inside the touch-action:none sheet; no double-tap zoom */
 }
 .custom-input::placeholder { color: var(--text-2); }
 .custom-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15); }
