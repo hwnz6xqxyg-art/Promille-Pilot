@@ -40,8 +40,9 @@ const drink = (id: string, tMin: number, ml: number, abv: number): Drink => ({
   abvPercent: abv,
 });
 
-// Default absorption is now 'linear' (45-min ramp). Cases asserting the MVP
+// Default absorption is 'linear' (30-min ramp). Cases asserting the MVP
 // step-change numbers pin the instant model explicitly.
+// Konservative Basis: Resorption 1,0 (kein Abzug) und r = min(Seidl, simple).
 const INSTANT = { absorption: 'instant' } as const;
 
 describe('Grundformeln', () => {
@@ -58,14 +59,17 @@ describe('Grundformeln', () => {
     expect(seidlR('male', 80, 180)).toBeCloseTo(0.72816, 4);
     expect(seidlR('female', 65, 168)).toBeCloseTo(0.643528, 4);
   });
-  test('peakBacForDrink 0,5L/5%/80kg ≈ 0,32', () => {
-    expect(peakBacForDrink(drink('a', 0, 500, 5), maleSimple())).toBeCloseTo(0.3214286, 5);
+  test('peakBacForDrink 0,5L/5%/80kg ≈ 0,36 (volle Anrechnung)', () => {
+    expect(peakBacForDrink(drink('a', 0, 500, 5), maleSimple())).toBeCloseTo(0.3571429, 5);
   });
 });
 
 describe('distributionFactor & Limit', () => {
-  test('seidl nutzt Größe, fällt ohne Größe auf simple zurück', () => {
-    expect(distributionFactor({ ...maleSimple(), distributionMode: 'seidl', heightCm: 180 })).toBeCloseTo(0.72816, 4);
+  test('seidl darf nur erhöhen: auf klassisches r geklammert, ohne Größe simple', () => {
+    // 80/180: Seidl 0.728 wäre GÜNSTIGER als klassisch 0.7 → geklammert auf 0.7.
+    expect(distributionFactor({ ...maleSimple(), distributionMode: 'seidl', heightCm: 180 })).toBeCloseTo(0.7, 6);
+    // 90/180: Seidl 0.680 < 0.7 → bleibt (Personalisierung erhöht die Schätzung).
+    expect(distributionFactor({ ...maleSimple(90), distributionMode: 'seidl', heightCm: 180 })).toBeCloseTo(0.67995, 4);
     expect(distributionFactor({ ...maleSimple(), distributionMode: 'seidl' })).toBeCloseTo(0.7, 6);
   });
   test('Fahranfänger erzwingt 0,0', () => {
@@ -77,18 +81,18 @@ describe('distributionFactor & Limit', () => {
 describe('Simulation: ein Bier', () => {
   const drinks = [drink('a', 0, 500, 5)];
   const p = maleSimple();
-  test('Peak ~0,32 ‰ (instant)', () => {
-    expect(simulate(drinks, p, INSTANT).peakBac).toBeCloseTo(0.32, 1);
+  test('Peak ~0,36 ‰ (instant)', () => {
+    expect(simulate(drinks, p, INSTANT).peakBac).toBeCloseTo(0.36, 1);
   });
   test('Elimination ~0,1 ‰/h (instant, im Abbau-Ast)', () => {
     const b30 = bacAtTime(drinks, p, T0 + 30 * MS_PER_MINUTE, INSTANT);
     const b90 = bacAtTime(drinks, p, T0 + 90 * MS_PER_MINUTE, INSTANT);
     expect(b30 - b90).toBeCloseTo(0.1, 2);
   });
-  test('nüchtern nach ~3,2 h', () => {
+  test('nüchtern nach ~3,6 h', () => {
     const sober = simulate(drinks, p).soberTime;
     expect(sober).not.toBeNull();
-    expect(((sober as number) - T0) / MS_PER_HOUR).toBeCloseTo(3.214, 1);
+    expect(((sober as number) - T0) / MS_PER_HOUR).toBeCloseTo(3.571, 1);
   });
   test('vor dem Trinken und 6 h später = 0', () => {
     expect(bacAtTime(drinks, p, T0 - 10 * MS_PER_MINUTE)).toBe(0);
@@ -102,27 +106,27 @@ describe('timeUntilBelow', () => {
   test('0,5 → null (nie darüber)', () => {
     expect(timeUntilBelow(drinks, p, 0.5, T0)).toBeNull();
   });
-  test('0,0 → ~3,2 h', () => {
+  test('0,0 → ~3,6 h', () => {
     const t = timeUntilBelow(drinks, p, 0.0, T0);
     expect(t).not.toBeNull();
-    expect(((t as number) - T0) / MS_PER_HOUR).toBeCloseTo(3.214, 1);
+    expect(((t as number) - T0) / MS_PER_HOUR).toBeCloseTo(3.571, 1);
   });
 });
 
 describe('Mehrere Getränke & nüchterne Lücke', () => {
-  test('3 Bier: Peak 0,85–0,97 (instant)', () => {
+  test('3 Bier: Peak 0,95–1,08 (instant)', () => {
     const drinks = [drink('a', 0, 500, 5), drink('b', 20, 500, 5), drink('c', 40, 500, 5)];
     const peak = simulate(drinks, maleSimple(), INSTANT).peakBac;
-    expect(peak).toBeGreaterThan(0.85);
-    expect(peak).toBeLessThan(0.97);
+    expect(peak).toBeGreaterThan(0.95);
+    expect(peak).toBeLessThan(1.08);
   });
   test('zweites Bier 8 h später erbt kein negatives Gedächtnis (instant)', () => {
     const drinks = [drink('a', 0, 500, 5), drink('b', 8 * 60, 500, 5)];
     const p = maleSimple();
     expect(bacAtTime(drinks, p, T0 + 8 * MS_PER_HOUR - MS_PER_MINUTE)).toBeCloseTo(0, 3);
     const after = bacAtTime(drinks, p, T0 + 8 * MS_PER_HOUR + MS_PER_MINUTE, INSTANT);
-    expect(after).toBeGreaterThan(0.28);
-    expect(after).toBeLessThan(0.34);
+    expect(after).toBeGreaterThan(0.31);
+    expect(after).toBeLessThan(0.37);
   });
 });
 
@@ -201,28 +205,28 @@ describe('Lineare Resorption (Default): sanfter Anstieg statt Sprung', () => {
   const drinks = [drink('a', 0, 500, 5)];
   const p = maleSimple();
 
-  test('Peak niedriger (~0,246) und ~45 min später als instant', () => {
+  test('Peak (~0,307) etwas niedriger und ~30 min später als instant', () => {
     const sim = simulate(drinks, p); // Default = linear
-    expect(sim.peakBac).toBeCloseTo(0.246, 2);
-    expect(sim.peakBac).toBeLessThan(0.3214286);
-    expect(Math.abs(sim.peakTime - (T0 + 45 * MS_PER_MINUTE))).toBeLessThanOrEqual(2 * MS_PER_MINUTE);
+    expect(sim.peakBac).toBeCloseTo(0.307, 2);
+    expect(sim.peakBac).toBeLessThan(0.3571429);
+    expect(Math.abs(sim.peakTime - (T0 + 30 * MS_PER_MINUTE))).toBeLessThanOrEqual(2 * MS_PER_MINUTE);
   });
 
   test('frisch geloggt: fast 0, dann steigend bis zum Peak', () => {
     const b1 = bacAtTime(drinks, p, T0 + 1 * MS_PER_MINUTE);
-    const b15 = bacAtTime(drinks, p, T0 + 15 * MS_PER_MINUTE);
+    const b10 = bacAtTime(drinks, p, T0 + 10 * MS_PER_MINUTE);
+    const b20 = bacAtTime(drinks, p, T0 + 20 * MS_PER_MINUTE);
     const b30 = bacAtTime(drinks, p, T0 + 30 * MS_PER_MINUTE);
-    const b45 = bacAtTime(drinks, p, T0 + 45 * MS_PER_MINUTE);
     expect(b1).toBeLessThan(0.05);
-    expect(b15).toBeLessThan(b30);
-    expect(b30).toBeLessThan(b45);
+    expect(b10).toBeLessThan(b20);
+    expect(b20).toBeLessThan(b30);
   });
 
   test('Getränk nach nüchterner Lücke rampt ebenfalls (kein Sofort-Sprung)', () => {
     const gap = [drink('a', 0, 500, 5), drink('b', 8 * 60, 500, 5)];
     expect(bacAtTime(gap, p, T0 + 8 * MS_PER_HOUR + 1 * MS_PER_MINUTE)).toBeLessThan(0.05);
-    const fresh45 = bacAtTime(gap, p, T0 + 8 * MS_PER_HOUR + 45 * MS_PER_MINUTE);
-    expect(fresh45).toBeGreaterThan(0.2);
-    expect(fresh45).toBeLessThan(0.28);
+    const fresh30 = bacAtTime(gap, p, T0 + 8 * MS_PER_HOUR + 30 * MS_PER_MINUTE);
+    expect(fresh30).toBeGreaterThan(0.28);
+    expect(fresh30).toBeLessThan(0.33);
   });
 });

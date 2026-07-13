@@ -9,10 +9,12 @@
 export const ETHANOL_DENSITY = 0.8;
 
 /**
- * Resorptionsdefizit: nur ~90 % des getrunkenen Alkohols erreichen das Blut
- * (First-Pass-Metabolismus). Konservativ als flacher Faktor angesetzt.
+ * Resorptionsfaktor: 1,0 = KEIN Resorptionsabzug. Ein First-Pass-Defizit
+ * (klassisch 10–30 %) würde Peak UND alle "unter X ab"-Prognosen senken —
+ * für ein Sicherheits-Tool die falsche Richtung. Wir rechnen den getrunkenen
+ * Alkohol voll an und liegen damit nie unter klassischen Widmark-Rechnern.
  */
-export const RESORPTION_FACTOR = 0.9;
+export const RESORPTION_FACTOR = 1.0;
 
 /**
  * Eliminationsrate β in ‰/h.
@@ -33,7 +35,9 @@ export const LIMIT_NOVICE = 0.0; // Probezeit / unter 21
 export const FORECAST_THRESHOLDS = [LIMIT_GENERAL, LIMIT_RELATIVE, LIMIT_NOVICE];
 
 /** Simulations-Defaults. */
-export const DEFAULT_ABSORPTION_MINUTES = 45; // Zeit bis zum Peak pro Getränk (linear-Modell)
+// 30 min = schnelles Ende der physiologischen Spanne (30–60 min): Alkohol wird
+// früher voll angerechnet, der angezeigte Peak liegt höher — konservativ.
+export const DEFAULT_ABSORPTION_MINUTES = 30;
 export const DEFAULT_STEP_MINUTES = 1; // Auflösung der Vorwärts-Simulation
 
 /** Verteilungsfaktor r – einfache Konstanten (Fallback ohne Körpergröße). */

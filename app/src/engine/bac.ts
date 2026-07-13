@@ -4,8 +4,9 @@
  * Reine, deterministische, RN-/DOM-freie Funktionen. Der aktuelle Promillewert wird
  * NIE gespeichert, sondern immer aus `drinks + profile` berechnet.
  *
- * Modell: Widmark mit Seidl-Verteilungsfaktor, konservativer Elimination und einer
- * EINZIGEN Vorwärts-Simulation, aus der alle Ausgaben abgeleitet werden. Elimination
+ * Modell: Widmark mit Seidl-Verteilungsfaktor (konservativ auf max. klassisches r
+ * geklammert), voller Anrechnung ohne Resorptionsabzug, konservativer Elimination und
+ * einer EINZIGEN Vorwärts-Simulation, aus der alle Ausgaben abgeleitet werden. Elimination
  * ist ganzkörperbezogen (null-ter Ordnung) und wird bei 0 geklammert – deshalb ist
  * "pro Getränk Peak minus β·Δt summieren" falsch (bricht über nüchterne Lücken),
  * und wir simulieren stattdessen Schritt für Schritt vorwärts.
@@ -118,12 +119,18 @@ export function seidlR(sex: Sex, weightKg: number, heightCm: number): number {
   return clamp(r, R_MIN, R_MAX);
 }
 
-/** Wählt den Verteilungsfaktor je nach Profil; fällt ohne Größe auf `simple` zurück. */
+/**
+ * Wählt den Verteilungsfaktor je nach Profil; fällt ohne Größe auf `simple` zurück.
+ * Konservativ geklammert: Seidl darf die Schätzung nur ERHÖHEN (kleineres r),
+ * nie unter den klassischen Widmark-Wert senken — sonst würden z. B. große
+ * schlanke Nutzer niedrigere Werte sehen als jeder Standard-Promillerechner.
+ */
 export function distributionFactor(profile: Profile): number {
+  const simple = simpleR(profile.sex);
   if (profile.distributionMode === 'seidl' && profile.heightCm && profile.heightCm > 0) {
-    return seidlR(profile.sex, profile.weightKg, profile.heightCm);
+    return Math.min(seidlR(profile.sex, profile.weightKg, profile.heightCm), simple);
   }
-  return simpleR(profile.sex);
+  return simple;
 }
 
 /** Der tatsächlich anzuwendende Grenzwert: Fahranfänger erzwingt 0,0 ‰. */

@@ -129,8 +129,11 @@ Pure, deterministic, RN-/DOM-free TypeScript module. **BAC is never stored — a
 - **Elimination rate β:** **0.1 ‰/h (conservative/slow)** for all safety-relevant outputs
   (the "below limit at" forecast), so the app **never reports sober too early**. 0.15 ‰/h exists
   only as an optional "average momentary estimate" — never for the driving forecast.
-- **Resorption deficit:** ingested alcohol × 0.9 (10 % deficit) as a documented constant.
-- **Absorption:** time-to-peak ~30–60 min. **Default is a linear ~45-min ramp per drink**
+- **Resorption:** ingested alcohol × 1.0 — **no resorption deficit**. A first-pass deduction
+  would lower the peak and every forecast; for a safety tool the alcohol is counted in full,
+  so the app never reads below a classic Widmark calculator.
+- **Absorption:** time-to-peak ~30–60 min. **Default is a linear ~30-min ramp per drink**
+  (fast end of the physiological range — alcohol counts in full sooner, conservative)
   (`absorption: 'linear'`); the original MVP step-change model stays available via
   `absorption: 'instant'`. The default changed without touching any caller.
 
@@ -156,7 +159,7 @@ export interface EngineOptions { absorption?: AbsorptionModel; absorptionMinutes
 export interface ThresholdForecast { limit: number; time: number | null; alreadyBelow: boolean; }
 
 export const ETHANOL_DENSITY = 0.8;
-export const RESORPTION_FACTOR = 0.9;
+export const RESORPTION_FACTOR = 1.0; // no deficit — conservative
 export const BETA_CONSERVATIVE = 0.1;   // safety-relevant default
 export const BETA_AVERAGE = 0.15;       // optional momentary estimate only
 export const LIMIT_ABSOLUTE = 1.1;      // absolute unfitness to drive (criminal offence)
@@ -231,7 +234,7 @@ age-gate → profileComplete == false → onboarding/profile → else (tabs)`.
 | `(tabs)/chart` | SVG curve from `simulate()`, limit line, "now" marker |
 | `(tabs)/settings` | Edit profile, methodology/privacy links, delete all data |
 | `add-drink` (modal) | Preset picker + volume/ABV/time; timestamp defaults to now, editable |
-| `methodology` | Widmark + Seidl, 0.8 g/ml, β=0.1, resorption 0.9 — disclosure for Apple 1.4.1 |
+| `methodology` | Widmark + Seidl, 0.8 g/ml, β=0.1, resorption 1.0 (no deficit) — disclosure for Apple 1.4.1 |
 | `privacy` | All on-device, no collection, no network (except AdMob later — see §9) |
 
 ---
@@ -281,7 +284,7 @@ Checklist that must be satisfied in code/store listing:
    German product copy (verbatim): *"Nur Schätzung. Kein Medizinprodukt, misst nicht den echten
    Blutalkohol. Niemals zur Entscheidung verwenden, ob du fährst. Im Zweifel: nicht fahren."*
 2. **Methodology disclosure** (`methodology` screen): Widmark + Seidl, 0.8 g/ml, β=0.1,
-   resorption 0.9 — satisfies Apple guideline 1.4.1 (accuracy/validation) since no "measurement"
+   resorption 1.0 (no deficit) — satisfies Apple guideline 1.4.1 (accuracy/validation) since no "measurement"
    is claimed.
 3. **"Not a medical device / no basis for medical or legal decisions"** in the app copy and (per
    Google Play Health policy, as of Jan 2026) in the **first paragraph of the store description**.
@@ -301,7 +304,7 @@ Mirror the style of the root `engine-core.test.js` (pure fixtures, `approx()`).
 - `npx tsx app/scripts/run-engine-tests.ts` — framework-free runner, 43 cases, and
   `src/engine/bac.test.ts` under jest-expo (`npm test`).
 - Fixtures include: `gramsOfAlcohol(500,5)≈20`; `seidlR` against hand-computed values; 0.5 l/5 %
-  beer for an 80 kg male (simple r=0.7) peak ≈ (20·0.9)/(0.7·80) ≈ 0.32 ‰; `currentBac` decays
+  beer for an 80 kg male (simple r=0.7) peak ≈ 20/(0.7·80) ≈ 0.36 ‰; `currentBac` decays
   ~0.1 ‰/h, clamps at 0; `timeUntilBelow` null when already below, correct & monotonic;
   multi-drink summation + **sober gap** (BAC=0, later drink inherits no negative history); novice
   override (`applicableLimit`=0.0 despite targetLimit); `forecastThresholds` (3 beers → ascending
