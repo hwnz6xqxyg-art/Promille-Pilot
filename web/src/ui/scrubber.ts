@@ -1,25 +1,24 @@
 /**
  * Time pill / scrubber — drag maps 0.85 min per px (drag left = future).
- * Future: 0…+720 min, holds on release (planning tool). Past: an ELASTIC PEEK —
- * 1:1 back to the evening's first drink, ×0.3 rubber beyond it, and on release
- * it always springs home to "Jetzt". Tick strip moves 11 px per 15 min.
+ * Future: 0…+720 min, holds on release (planning tool). Past: an ELASTIC PEEK
+ * that always springs home to "Jetzt" on release. The past side auto-scales so
+ * ONE comfortable stroke (~200 px) reaches the evening's first drink no matter
+ * how long ago it was — without it, a 7-h-old evening would need ~480 px and
+ * the peek could never get there. Rubber beyond the first drink keeps a
+ * constant screen feel. Tick strip moves 11 px per 15 min.
  */
 import type { Store } from '../state/store';
 import { qs, setText } from '../lib/dom';
 import { fmtClock, fmtDur } from '../lib/format';
 
 const MAX = 720;
+/** Base-minutes covered by one comfortable stroke (200 px × 0.85 min/px). */
+const STROKE_MIN = 170;
 
 export interface ScrubHooks {
   onChange(): void;
   springShiftTo(target: number): void;
   cancelShiftAnim(): void;
-}
-
-function rubber(raw: number, lo: number): number {
-  if (raw < lo) return lo + (raw - lo) * 0.3;
-  if (raw > MAX) return MAX + (raw - MAX) * 0.3;
-  return raw;
 }
 
 export class Scrubber {
@@ -45,8 +44,19 @@ export class Scrubber {
     });
     this.card.addEventListener('pointermove', (e) => {
       if (!this.drag) return;
-      const raw = this.drag.s - (e.clientX - this.drag.x) * 0.85;
-      this.store.shiftMin = rubber(raw, this.lowerBound());
+      let raw = this.drag.s - (e.clientX - this.drag.x) * 0.85;
+      if (raw < 0) {
+        const lo = this.lowerBound();
+        // Scale the below-zero segment so one stroke spans back to the first
+        // drink; dividing the rubber by the same boost keeps the overshoot
+        // stretch constant in SCREEN terms (same feel as the future side).
+        const boost = Math.max(1, lo / -STROKE_MIN);
+        raw *= boost;
+        if (raw < lo) raw = lo + ((raw - lo) * 0.3) / boost;
+      } else if (raw > MAX) {
+        raw = MAX + (raw - MAX) * 0.3;
+      }
+      this.store.shiftMin = raw;
       this.hooks.onChange();
     });
     const release = () => {
