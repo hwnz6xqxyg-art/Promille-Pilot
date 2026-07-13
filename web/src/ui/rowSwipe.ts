@@ -42,7 +42,10 @@ export function attachSwipeActions(row: HTMLElement, content: HTMLElement, actio
   let tx = 0; // current settled translateX (0 = closed, −width = open)
   let drag: { x: number; y: number; startTx: number; width: number; lastX: number; lastT: number; vx: number } | null = null;
   let swiping = false;
-  let swallowClick = false;
+  // Clicks arriving before this instant are gesture debris (the click trailing a
+  // mouse drag). Time-bounded on purpose: a TOUCH swipe produces no trailing click
+  // at all, and a sticky flag would eat the user's next real tap on an action.
+  let swallowUntil = 0;
   let actionsW = 0; // cached at drag start; used to derive the reveal progress
 
   const apply = (x: number): void => {
@@ -112,13 +115,13 @@ export function attachSwipeActions(row: HTMLElement, content: HTMLElement, actio
     if (!d || !swiping) {
       // Plain tap on an open row's content: just close it, swallow the tap.
       if (!swiping && tx !== 0 && d) {
-        swallowClick = true;
+        swallowUntil = performance.now() + 250;
         settle(false, d.width);
       }
       return;
     }
     swiping = false;
-    swallowClick = true; // a real swipe must not fire the row's tap action
+    swallowUntil = performance.now() + 250; // a swipe must not fire the row's tap action
     row.classList.remove('is-swiping');
     content.style.transition = '';
     const current = d.startTx + (d.lastX - d.x);
@@ -132,8 +135,8 @@ export function attachSwipeActions(row: HTMLElement, content: HTMLElement, actio
   row.addEventListener(
     'click',
     (e) => {
-      if (swallowClick) {
-        swallowClick = false;
+      if (performance.now() < swallowUntil) {
+        swallowUntil = 0;
         e.preventDefault();
         e.stopPropagation();
       }
