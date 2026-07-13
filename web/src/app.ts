@@ -139,6 +139,7 @@ export class App {
     setText(this.bacPill, `${fmtP(displayed)} ‰`);
     this.bacPill.classList.toggle('is-over', over);
     this.bacPill.classList.toggle('is-drinking', !over && drinking);
+    this.hero.setSeverity(over, drinking); // big time mirrors the pill's color
 
     if (this.store.drinks.length > 0) {
       if (this.lastOver === null) this.lastOver = over;
