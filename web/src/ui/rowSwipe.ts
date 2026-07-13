@@ -7,6 +7,12 @@
  * pointer moves ≥ 8 px horizontally-dominant.
  */
 
+/** White stroke icons for the action blobs (modern Mail look: squircle + glyph). */
+export const SWIPE_EDIT_ICON =
+  '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+export const SWIPE_DELETE_ICON =
+  '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
+
 interface OpenRow {
   row: HTMLElement;
   close: () => void;
@@ -37,9 +43,13 @@ export function attachSwipeActions(row: HTMLElement, content: HTMLElement, actio
   let drag: { x: number; y: number; startTx: number; width: number; lastX: number; lastT: number; vx: number } | null = null;
   let swiping = false;
   let swallowClick = false;
+  let actionsW = 0; // cached at drag start; used to derive the reveal progress
 
   const apply = (x: number): void => {
     content.style.transform = x ? `translateX(${x.toFixed(1)}px)` : '';
+    // 0..1 reveal progress — the action blobs fade/scale in with the swipe.
+    const w = actionsW || actions.offsetWidth || 1;
+    row.style.setProperty('--swipe', Math.min(1, Math.max(0, -x / w)).toFixed(3));
   };
   const close = (): void => {
     tx = 0;
@@ -82,6 +92,8 @@ export function attachSwipeActions(row: HTMLElement, content: HTMLElement, actio
         return;
       }
       swiping = true;
+      actionsW = drag.width;
+      row.classList.add('is-swiping'); // progress-linked blobs, no transitions mid-drag
       row.setPointerCapture(e.pointerId);
       content.style.transition = 'none';
     }
@@ -107,6 +119,7 @@ export function attachSwipeActions(row: HTMLElement, content: HTMLElement, actio
     }
     swiping = false;
     swallowClick = true; // a real swipe must not fire the row's tap action
+    row.classList.remove('is-swiping');
     content.style.transition = '';
     const current = d.startTx + (d.lastX - d.x);
     const open = d.vx < -0.5 ? true : d.vx > 0.5 ? false : current < -d.width / 2;

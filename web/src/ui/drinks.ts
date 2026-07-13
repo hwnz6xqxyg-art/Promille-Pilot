@@ -6,7 +6,7 @@
 import type { Store } from '../state/store';
 import { el, qs, setText } from '../lib/dom';
 import { fmtClock, fmtN1 } from '../lib/format';
-import { attachSwipeActions } from './rowSwipe';
+import { attachSwipeActions, SWIPE_DELETE_ICON, SWIPE_EDIT_ICON } from './rowSwipe';
 
 export class Drinks {
   private list = qs<HTMLElement>('#drinkList');
@@ -72,10 +72,12 @@ export class Drinks {
 
       // Mail-style actions revealed by swiping the row leftward.
       const actions = el('div', 'row-actions');
-      const editBtn = el('button', 'row-act is-edit', 'Bearbeiten');
+      const editBtn = el('button', 'row-act is-edit');
+      editBtn.innerHTML = SWIPE_EDIT_ICON;
       editBtn.setAttribute('aria-label', `Bearbeiten: ${d.label}, ${fmtClock(d.timestamp)}`);
       editBtn.addEventListener('click', () => this.onEdit(d.id));
-      const delBtn = el('button', 'row-act is-delete', 'Löschen');
+      const delBtn = el('button', 'row-act is-delete');
+      delBtn.innerHTML = SWIPE_DELETE_ICON;
       delBtn.setAttribute('aria-label', `Entfernen: ${d.label}, ${fmtClock(d.timestamp)}`);
       delBtn.addEventListener('click', () => this.store.removeDrink(d.id));
       actions.append(editBtn, delBtn);

@@ -205,11 +205,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   position: relative; background: #fff; touch-action: pan-y; will-change: transform;
   transition: transform 0.28s cubic-bezier(0.32, 1.1, 0.42, 1);
 }
-.row-actions { position: absolute; inset: 0 0 0 auto; display: flex; }
+/* Floating squircle icon buttons (modern Mail look), fading/scaling in with the swipe. */
+.row-actions { position: absolute; inset: 0 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 10px; }
 .row-act {
-  width: 88px; display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; color: #fff;
+  width: 38px; height: 38px; border-radius: 13px; flex: none;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  opacity: var(--swipe, 0);
+  transform: scale(calc(0.6 + 0.4 * var(--swipe, 0)));
+  transition: opacity 0.28s, transform 0.28s cubic-bezier(0.32, 1.1, 0.42, 1);
 }
+.swipe-row.is-swiping .row-act { transition: none; } /* progress-linked while the finger drags */
 .row-act.is-edit { background: var(--accent); }
 .row-act.is-delete { background: var(--red); }
 @keyframes pp-row-in {

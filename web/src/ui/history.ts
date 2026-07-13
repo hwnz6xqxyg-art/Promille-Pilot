@@ -7,7 +7,7 @@
 import type { Store } from '../state/store';
 import { el, qs } from '../lib/dom';
 import { fmtClock, fmtDate, fmtN1, fmtP } from '../lib/format';
-import { attachSwipeActions } from './rowSwipe';
+import { attachSwipeActions, SWIPE_DELETE_ICON, SWIPE_EDIT_ICON } from './rowSwipe';
 
 export class History {
   private list = qs<HTMLElement>('#historyList');
@@ -36,7 +36,8 @@ export class History {
       // Swipeable header: tap expands, swipe reveals Bearbeiten | Löschen.
       const swipe = el('div', 'history-swipe swipe-row');
       const actions = el('div', 'row-actions');
-      const edit = el('button', 'row-act is-edit history-edit', 'Bearbeiten');
+      const edit = el('button', 'row-act is-edit history-edit');
+      edit.innerHTML = SWIPE_EDIT_ICON;
       edit.setAttribute('aria-label', `Abend vom ${fmtDate(s.startedAt)} bearbeiten`);
       edit.addEventListener('click', () => {
         // Reopen into the current log (a non-empty current evening archives first);
@@ -44,7 +45,8 @@ export class History {
         this.store.reopenSession(s.id, Date.now());
         this.onReopen();
       });
-      const del = el('button', 'row-act is-delete history-delete', 'Löschen');
+      const del = el('button', 'row-act is-delete history-delete');
+      del.innerHTML = SWIPE_DELETE_ICON;
       del.setAttribute('aria-label', `Abend vom ${fmtDate(s.startedAt)} löschen`);
       del.addEventListener('click', () => this.store.removeSession(s.id));
       actions.append(edit, del);
