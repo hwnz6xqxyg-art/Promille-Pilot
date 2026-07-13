@@ -1,19 +1,18 @@
 /**
  * "Vergangene Abende" — session history card in the profile cover. Each closed
  * evening is a collapsible row (date + time range · count + peak) that expands
- * into its read-only drink list. Deleting a session arms inline (✕ → "Löschen?"
- * for 3 s) instead of opening another overlay.
+ * into its read-only drink list. Swipe the row leftward (Apple-Mail style) for
+ * Bearbeiten (reopen into the current log) | Löschen.
  */
 import type { Store } from '../state/store';
-import { el, qs, setText } from '../lib/dom';
+import { el, qs } from '../lib/dom';
 import { fmtClock, fmtDate, fmtN1, fmtP } from '../lib/format';
+import { attachSwipeActions } from './rowSwipe';
 
 export class History {
   private list = qs<HTMLElement>('#historyList');
   private empty = qs<HTMLElement>('#historyEmpty');
   private expanded = new Set<string>();
-  private armedId: string | null = null;
-  private armTimer: number | null = null;
 
   constructor(
     private store: Store,
@@ -23,27 +22,35 @@ export class History {
     this.render();
   }
 
-  private disarm(): void {
-    if (this.armTimer !== null) {
-      clearTimeout(this.armTimer);
-      this.armTimer = null;
-    }
-    this.armedId = null;
-  }
-
   render(): void {
     // Chronological history (a reopened + re-closed evening keeps its place).
     const sessions = this.store.sessions.slice().sort((a, b) => b.startedAt - a.startedAt);
     this.empty.hidden = sessions.length > 0;
     this.list.textContent = '';
-    // Sessions no longer present can't stay expanded/armed.
     const ids = new Set(sessions.map((s) => s.id));
     for (const id of this.expanded) if (!ids.has(id)) this.expanded.delete(id);
-    if (this.armedId && !ids.has(this.armedId)) this.disarm();
 
     for (const s of sessions) {
       const row = el('div', 'history-row');
 
+      // Swipeable header: tap expands, swipe reveals Bearbeiten | Löschen.
+      const swipe = el('div', 'history-swipe swipe-row');
+      const actions = el('div', 'row-actions');
+      const edit = el('button', 'row-act is-edit history-edit', 'Bearbeiten');
+      edit.setAttribute('aria-label', `Abend vom ${fmtDate(s.startedAt)} bearbeiten`);
+      edit.addEventListener('click', () => {
+        // Reopen into the current log (a non-empty current evening archives first);
+        // close the profile so the user lands on the editable evening.
+        this.store.reopenSession(s.id, Date.now());
+        this.onReopen();
+      });
+      const del = el('button', 'row-act is-delete history-delete', 'Löschen');
+      del.setAttribute('aria-label', `Abend vom ${fmtDate(s.startedAt)} löschen`);
+      del.addEventListener('click', () => this.store.removeSession(s.id));
+      actions.append(edit, del);
+      swipe.appendChild(actions);
+
+      const content = el('div', 'row-content');
       const head = el('button', 'history-head');
       head.setAttribute('aria-expanded', String(this.expanded.has(s.id)));
       const left = el('div', 'history-when');
@@ -59,10 +66,12 @@ export class History {
       head.addEventListener('click', () => {
         if (this.expanded.has(s.id)) this.expanded.delete(s.id);
         else this.expanded.add(s.id);
-        this.disarm();
         this.render();
       });
-      row.appendChild(head);
+      content.appendChild(head);
+      swipe.appendChild(content);
+      attachSwipeActions(swipe, content, actions);
+      row.appendChild(swipe);
 
       if (this.expanded.has(s.id)) {
         const details = el('div', 'history-drinks');
@@ -74,40 +83,6 @@ export class History {
           dr.appendChild(el('span', 'history-drink-time num', fmtClock(d.timestamp)));
           details.appendChild(dr);
         }
-        const actions = el('div', 'history-actions');
-        const edit = el('button', 'history-edit');
-        setText(edit, 'Abend bearbeiten');
-        edit.addEventListener('click', () => {
-          // Reopen into the current log (a non-empty current evening archives first);
-          // close the profile so the user lands on the editable evening.
-          this.disarm();
-          this.store.reopenSession(s.id, Date.now());
-          this.onReopen();
-        });
-        actions.appendChild(edit);
-        const del = el('button', 'history-delete');
-        if (this.armedId === s.id) {
-          del.classList.add('is-armed');
-          setText(del, 'Wirklich löschen?');
-          del.addEventListener('click', () => {
-            this.disarm();
-            this.store.removeSession(s.id);
-          });
-        } else {
-          setText(del, 'Abend löschen');
-          del.addEventListener('click', () => {
-            this.disarm();
-            this.armedId = s.id;
-            this.armTimer = window.setTimeout(() => {
-              this.armedId = null;
-              this.armTimer = null;
-              this.render();
-            }, 3000);
-            this.render();
-          });
-        }
-        actions.appendChild(del);
-        details.appendChild(actions);
         row.appendChild(details);
       }
 

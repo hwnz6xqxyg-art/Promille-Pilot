@@ -195,8 +195,23 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ---- drinks (back face of the flip card) ---- */
 .drinks-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px 4px; }
 .drinks-empty { padding: 6px 16px 16px; font-size: 14px; color: rgba(60, 60, 67, 0.55); }
-.drink-row { display: flex; align-items: center; gap: 11px; padding: 9px 16px; border-top: 0.5px solid var(--hairline); }
+.drink-row { border-top: 0.5px solid var(--hairline); }
 .drink-row:first-child { border-top: none; }
+.drink-row .row-content { display: flex; align-items: center; gap: 11px; padding: 9px 16px; }
+
+/* Mail-style swipe actions: content slides left, colored buttons wait underneath. */
+.swipe-row { position: relative; overflow: hidden; }
+.row-content {
+  position: relative; background: #fff; touch-action: pan-y; will-change: transform;
+  transition: transform 0.28s cubic-bezier(0.32, 1.1, 0.42, 1);
+}
+.row-actions { position: absolute; inset: 0 0 0 auto; display: flex; }
+.row-act {
+  width: 88px; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff;
+}
+.row-act.is-edit { background: var(--accent); }
+.row-act.is-delete { background: var(--red); }
 @keyframes pp-row-in {
   0% { opacity: 0; transform: translateY(14px) scale(0.97); }
   60% { opacity: 1; transform: translateY(-2px) scale(1.005); }
@@ -210,11 +225,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .drink-label { font-size: 15px; font-weight: 600; }
 .drink-detail { font-size: 12px; color: var(--text-2); }
 .drink-time { font-size: 13px; color: var(--text-2); }
-.drink-remove {
-  width: 26px; height: 26px; border-radius: 50%; background: var(--fill-2);
-  display: flex; align-items: center; justify-content: center; position: relative;
-}
-.drink-remove::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
 
 .footer { padding: 16px 28px calc(120px + env(safe-area-inset-bottom, 0px)); font-size: 11px; line-height: 1.5; color: var(--on-bg-3); text-align: center; }
 
@@ -382,10 +392,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .history-drink-label { font-weight: 600; }
 .history-drink-detail { flex: 1; color: var(--text-2); font-size: 12px; }
 .history-drink-time { color: var(--text-2); font-size: 12px; }
-.history-actions { display: flex; justify-content: center; gap: 14px; margin-top: 6px; }
-.history-edit { padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--accent); border-radius: 10px; }
-.history-delete { padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--red); border-radius: 10px; }
-.history-delete.is-armed { background: var(--red-bg); font-weight: 700; }
 
 /* ---- profile / onboarding cover ---- */
 .profile-cover {
