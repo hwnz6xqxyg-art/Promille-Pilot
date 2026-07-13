@@ -1,10 +1,10 @@
 /**
- * Create / edit a custom drink — a small form sheet reached from the add-sheet's
- * "＋ Eigenes Getränk" row (create) or a custom row's ✎ (edit). Emoji from a
- * curated grid, name via the app's only text input, amount + strength via the
- * same steppers as the editor. Saving persists to store.customDrinks; onChange
- * refreshes the add-sheet list. No swipe-to-dismiss (a form shouldn't lose typed
- * text to a stray drag) — backdrop / Escape / Löschen close it.
+ * Create / edit a custom drink — the "create" view *inside* the add-sheet
+ * (#sheet.is-creating), not a separate overlay. Emoji from a curated grid, name
+ * via the app's only text input, amount + strength via the same steppers as the
+ * editor. Saving persists to store.customDrinks; every exit (save / delete / back)
+ * calls onDone(), which returns the sheet to its browse view. The Sheet owns the
+ * open/close/swipe lifecycle — this panel only fills itself and mutates state.
  */
 import type { Store } from '../state/store';
 import { qs, setText } from '../lib/dom';
@@ -19,9 +19,7 @@ const clamp = (v: number, lo: number, hi: number): number => Math.max(lo, Math.m
 
 export type CustomMode = 'create' | 'edit';
 
-export class CustomForm {
-  private sheet = qs<HTMLElement>('#customSheet');
-  private backdrop = qs<HTMLElement>('#customBackdrop');
+export class CreatePanel {
   private title = qs<HTMLElement>('#customTitle');
   private grid = qs<HTMLElement>('#customEmojiGrid');
   private nameInput = qs<HTMLInputElement>('#customName');
@@ -33,6 +31,7 @@ export class CustomForm {
   private abvPlus = qs<HTMLButtonElement>('#customAbvPlus');
   private saveBtn = qs<HTMLButtonElement>('#customSave');
   private deleteBtn = qs<HTMLButtonElement>('#customDelete');
+  private backBtn = qs<HTMLButtonElement>('#customBack');
   private emojiBtns = new Map<string, HTMLButtonElement>();
 
   private editingId: string | null = null;
@@ -42,7 +41,7 @@ export class CustomForm {
 
   constructor(
     private store: Store,
-    private onChange: () => void,
+    private onDone: () => void,
   ) {
     for (const emoji of EMOJIS) {
       const btn = document.createElement('button');
@@ -75,26 +74,24 @@ export class CustomForm {
     this.saveBtn.addEventListener('click', () => this.save());
     this.deleteBtn.addEventListener('click', () => {
       if (this.editingId) this.store.removeCustomDrink(this.editingId);
-      this.onChange();
-      this.close();
+      this.onDone();
     });
-    this.backdrop.addEventListener('click', () => this.close());
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.sheet.classList.contains('is-open')) this.close();
-    });
+    this.backBtn.addEventListener('click', () => this.onDone());
   }
 
-  open(mode: CustomMode, id?: string): void {
+  /** Seed the panel for a create or edit; the Sheet reveals it + focuses the name. */
+  load(mode: CustomMode, id?: string): void {
     if (mode === 'edit' && id) {
       const d = this.store.customDrinks.find((x) => x.id === id);
-      if (!d) return;
-      this.editingId = id;
-      this.e = d.e;
-      this.vol = d.vol;
-      this.abv = d.abv;
-      this.nameInput.value = d.name;
-      setText(this.title, 'Getränk bearbeiten');
-      this.deleteBtn.hidden = false;
+      if (d) {
+        this.editingId = id;
+        this.e = d.e;
+        this.vol = d.vol;
+        this.abv = d.abv;
+        this.nameInput.value = d.name;
+        setText(this.title, 'Getränk bearbeiten');
+        this.deleteBtn.hidden = false;
+      }
     } else {
       this.editingId = null;
       this.e = EMOJIS[2];
@@ -107,16 +104,10 @@ export class CustomForm {
     this.syncEmoji();
     this.syncSteppers();
     this.syncSaveEnabled();
-    this.sheet.classList.add('is-open');
-    this.backdrop.classList.add('is-open');
-    this.nameInput.focus({ preventScroll: true });
   }
 
-  close(): void {
-    this.editingId = null;
-    this.nameInput.blur();
-    this.sheet.classList.remove('is-open');
-    this.backdrop.classList.remove('is-open');
+  focusName(): void {
+    this.nameInput.focus({ preventScroll: true });
   }
 
   private save(): void {
@@ -125,8 +116,7 @@ export class CustomForm {
     const fields = { e: this.e, name, detail: fmtDrinkDetail(this.vol, this.abv), vol: this.vol, abv: this.abv };
     if (this.editingId) this.store.updateCustomDrink(this.editingId, fields);
     else this.store.addCustomDrink(fields);
-    this.onChange();
-    this.close();
+    this.onDone();
   }
 
   private stepVol(delta: number): void {

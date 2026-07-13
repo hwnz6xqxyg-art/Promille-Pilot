@@ -17,7 +17,6 @@ import { Scrubber, type ScrubHooks } from './ui/scrubber';
 import { Chart } from './ui/chart';
 import { Drinks } from './ui/drinks';
 import { DrinkEditor } from './ui/editor';
-import { CustomForm } from './ui/customform';
 import { Sheet } from './ui/sheet';
 import { Onboarding } from './ui/onboarding';
 import { FlipCard } from './ui/flip';
@@ -56,10 +55,7 @@ export class App {
     this.chart = new Chart(this.store, scrubHooks);
     const editor = new DrinkEditor(this.store);
     this.drinks = new Drinks(this.store, (id) => editor.open(id));
-    // Sheet opens the custom-drink form; the form refreshes the sheet's list after a change.
-    let custom: CustomForm;
-    const sheet = new Sheet(this.store, (mode, id) => custom.open(mode, id));
-    custom = new CustomForm(this.store, () => sheet.renderPresets());
+    const sheet = new Sheet(this.store);
     new QuickAdd(this.store, () => sheet.open());
     new Onboarding(this.store);
     new FlipCard();

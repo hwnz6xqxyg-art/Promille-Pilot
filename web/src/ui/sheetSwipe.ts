@@ -13,8 +13,8 @@ export function attachSwipeToDismiss(
   let drag: { y: number; h: number; ty: number; vy: number; lastY: number; lastT: number } | null = null;
 
   sheet.addEventListener('pointerdown', (e) => {
-    // Preset rows and the +/− steppers stay pure taps — never start a drag on them.
-    if ((e.target as HTMLElement).closest('button')) return;
+    // Buttons stay pure taps; the text field stays focusable — never start a drag on them.
+    if ((e.target as HTMLElement).closest('button, input, textarea, [contenteditable]')) return;
     sheet.setPointerCapture(e.pointerId);
     drag = { y: e.clientY, h: sheet.offsetHeight, ty: 0, vy: 0, lastY: e.clientY, lastT: e.timeStamp };
     sheet.style.transition = 'none';
