@@ -132,9 +132,13 @@ export function attachSwipeActions(row: HTMLElement, content: HTMLElement, actio
   row.addEventListener('pointercancel', release);
 
   // Capture-phase: eat the click that trails a swipe (or an open-row closing tap).
+  // Never swallow clicks on the action blobs themselves — gesture debris always
+  // targets the row/content (pointer capture retargets there), so even a tap
+  // landing within the window must reach Bearbeiten/Löschen on the first try.
   row.addEventListener(
     'click',
     (e) => {
+      if (actions.contains(e.target as Node)) return;
       if (performance.now() < swallowUntil) {
         swallowUntil = 0;
         e.preventDefault();
