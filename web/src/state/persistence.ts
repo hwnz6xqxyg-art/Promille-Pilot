@@ -4,7 +4,7 @@
  */
 import type { Profile } from '../engine';
 import { BETA_CONSERVATIVE, LIMIT_GENERAL } from '../engine';
-import type { CustomDrink } from '../data/presets';
+import type { CustomDrink, DrinkPreset } from '../data/presets';
 
 export interface StoredDrink {
   id: string;
@@ -33,6 +33,10 @@ const KEY_ONBOARDED = 'pp.web.v1.onboarded';
 const KEY_CUSTOM = 'pp.web.v1.customDrinks';
 const KEY_SESSIONS = 'pp.web.v1.sessions';
 const KEY_EDITING = 'pp.web.v1.editing';
+const KEY_RECENT = 'pp.web.v1.recentDrinks';
+
+/** How many recently-added drink templates the quick-add fan remembers. */
+export const MAX_RECENT = 12;
 
 /** An archived evening reopened for editing, with the live evening set aside. */
 export interface EditingState {
@@ -160,6 +164,39 @@ export function loadCustomDrinks(): CustomDrink[] {
 
 export function saveCustomDrinks(drinks: CustomDrink[]): void {
   write(KEY_CUSTOM, drinks);
+}
+
+/**
+ * The quick-add fan's memory: drink templates in most-recently-added order.
+ * Same field shape as a preset — enough to re-log the drink with one tap.
+ */
+export function loadRecentDrinks(): DrinkPreset[] {
+  const arr = read(KEY_RECENT);
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .filter(
+      (x): x is DrinkPreset =>
+        !!x &&
+        typeof x === 'object' &&
+        typeof (x as DrinkPreset).e === 'string' &&
+        typeof (x as DrinkPreset).name === 'string' &&
+        typeof (x as DrinkPreset).vol === 'number' &&
+        (x as DrinkPreset).vol > 0 &&
+        typeof (x as DrinkPreset).abv === 'number' &&
+        (x as DrinkPreset).abv > 0,
+    )
+    .map((x) => ({
+      e: x.e,
+      name: x.name,
+      detail: typeof x.detail === 'string' ? x.detail : '',
+      vol: x.vol,
+      abv: x.abv,
+    }))
+    .slice(0, MAX_RECENT);
+}
+
+export function saveRecentDrinks(list: DrinkPreset[]): void {
+  write(KEY_RECENT, list.slice(0, MAX_RECENT));
 }
 
 /** Same shape checks as loadDrinks, but WITHOUT the age prune — history keeps old drinks. */

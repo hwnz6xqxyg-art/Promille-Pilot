@@ -13,18 +13,27 @@ import {
   loadEditing,
   loadOnboarded,
   loadProfile,
+  loadRecentDrinks,
   loadSessions,
   saveCustomDrinks,
   saveDrinks,
   saveEditing,
   saveOnboarded,
   saveProfile,
+  saveRecentDrinks,
   saveSessions,
 } from './persistence';
 
 /** A finished evening auto-archives once the newest drink is this old. */
 const AUTO_CLOSE_MS = 12 * 3600 * 1000;
 const MAX_SESSIONS = 30;
+/** Recently-added drink templates kept for the quick-add fan (most recent first). */
+const MAX_RECENT = 12;
+
+/** Identity of a drink template for de-duping the recent list (ignores label text drift). */
+function recentKey(p: DrinkPreset): string {
+  return `${p.e}|${p.name}|${p.vol}|${p.abv}`;
+}
 
 function newId(): string {
   try {
@@ -39,6 +48,8 @@ export class Store {
   drinks: StoredDrink[];
   customDrinks: CustomDrink[];
   sessions: DrinkSession[];
+  /** Drink templates in most-recently-added order — powers the quick-add fan. */
+  recentDrinks: DrinkPreset[];
   /** Non-null while editing a reopened past evening; holds the stashed live evening. */
   editing: EditingState | null;
   onboarded: boolean;
@@ -56,9 +67,25 @@ export class Store {
     this.drinks = loadDrinks();
     this.customDrinks = loadCustomDrinks();
     this.sessions = loadSessions();
+    this.recentDrinks = loadRecentDrinks();
     this.editing = loadEditing();
     this.onboarded = loadOnboarded();
     this.profileOpen = !this.onboarded;
+    // Cold start for a returning user (no MRU yet): seed the fan from tonight's
+    // log, newest first, so the quick-add offers real drinks right away.
+    if (this.recentDrinks.length === 0 && this.drinks.length > 0) {
+      const seen = new Set<string>();
+      const seed: DrinkPreset[] = [];
+      for (let i = this.drinks.length - 1; i >= 0 && seed.length < MAX_RECENT; i--) {
+        const d = this.drinks[i];
+        const p: DrinkPreset = { e: d.e, name: d.label, detail: d.detail, vol: d.volumeMl, abv: d.abvPercent };
+        if (seen.has(recentKey(p))) continue;
+        seen.add(recentKey(p));
+        seed.push(p);
+      }
+      this.recentDrinks = seed;
+      saveRecentDrinks(this.recentDrinks);
+    }
     // Auto-archive a finished evening: the last drink is ≥ 12 h old → it belongs
     // to history, and the current view starts fresh (replaces silent pruning).
     // Skipped while editing a past evening — its drinks are old by definition.
@@ -92,8 +119,17 @@ export class Store {
     };
     this.drinks = this.drinks.concat(drink);
     saveDrinks(this.drinks);
+    this.rememberRecent(p);
     this.invalidate();
     return drink;
+  }
+
+  /** Move a just-added drink template to the front of the quick-add fan's memory. */
+  private rememberRecent(p: DrinkPreset): void {
+    const entry: DrinkPreset = { e: p.e, name: p.name, detail: p.detail, vol: p.vol, abv: p.abv };
+    const k = recentKey(entry);
+    this.recentDrinks = [entry, ...this.recentDrinks.filter((d) => recentKey(d) !== k)].slice(0, MAX_RECENT);
+    saveRecentDrinks(this.recentDrinks);
   }
 
   removeDrink(id: string): void {
